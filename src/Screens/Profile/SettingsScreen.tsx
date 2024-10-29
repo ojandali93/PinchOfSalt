@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import tailwind from 'twrnc'
 import StandardHeader from '../../Components/Headers/StandardHeader'
 import { AlertCircle, Bell, Bookmark, ChevronsRight, Edit2, Flag, Heart, List, Lock, LogOut, MessageSquare, Shuffle, Slash, User, X } from 'react-native-feather'
@@ -9,7 +9,20 @@ import { useNavigation } from '@react-navigation/native'
 const SettingsScreen = () => {
   const navigation = useNavigation()
 
-  const {currentProfile, logoutCurrentUser} = useUser()
+  const {currentProfile, logoutCurrentUser, deleteAccount} = useUser()
+  
+  console.log(currentProfile)
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? All your information will be permanently removed from the application and cannot be recovered.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: () => deleteAccount(currentProfile.id, navigation) }
+      ]
+    );
+  }
 
   return (
     <View style={tailwind`flex-1 bg-white`}>
@@ -149,7 +162,7 @@ const SettingsScreen = () => {
               <Text style={tailwind`text-sky-500 text-lg ml-2`}>Logout</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => { }} 
+          <TouchableOpacity onPress={() => {confirmDeleteAccount() }} 
             style={tailwind`flex flex-row items-center justify-between py-3 border-b-2 border-b-neutral-700`} 
           >
             <View style={tailwind`flex flex-row items-center`}>

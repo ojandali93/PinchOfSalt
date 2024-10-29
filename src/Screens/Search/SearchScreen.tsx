@@ -20,6 +20,7 @@ const SearchScreen = () => {
         .from('Recipes')
         .select(`
           *,
+          user_profile:Profiles(*),
           Categories(*),
           Cuisine(*),
           Ingredients(*),
@@ -33,31 +34,7 @@ const SearchScreen = () => {
         return;
       }
 
-      // Now we loop through the recipes and get the related user profile for each
-      const recipesWithUserProfiles = [];
-
-      for (const recipe of recipesData) {
-        const { user_id } = recipe;
-
-        const { data: userProfile, error: userError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('user_id', user_id)
-          .single(); // Assuming user_id is unique for each user
-
-        if (userError) {
-          console.error(`Error fetching user profile for recipe ${recipe.id}:`, userError);
-          continue;
-        }
-
-        // Add the user profile to the recipe object
-        recipesWithUserProfiles.push({
-          ...recipe,
-          user_profile: userProfile, // Attach user profile to the recipe
-        });
-      }
-
-      setFeaturedRecipes(recipesWithUserProfiles); // Update the state with the fetched recipes and user profiles
+      setFeaturedRecipes(recipesData); // Update the state with the fetched recipes and user profiles
     } catch (error) {
       console.error('Unexpected error while fetching featured recipes:', error);
     }
@@ -69,6 +46,7 @@ const SearchScreen = () => {
         .from('Recipes')
         .select(`
           *,
+          user_profile:Profiles(*),
           Categories(*),
           Cuisine(*),
           Ingredients(*),
@@ -83,30 +61,8 @@ const SearchScreen = () => {
       }
   
       // Now we loop through the recipes and get the related user profile for each
-      const recipesWithUserProfiles = [];
-  
-      for (const recipe of recipesData) {
-        const { user_id } = recipe;
-  
-        const { data: userProfile, error: userError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('user_id', user_id)
-          .single(); // Fetch the user profile based on user_id
-  
-        if (userError) {
-          console.error(`Error fetching user profile for recipe ${recipe.id}:`, userError);
-          continue;
-        }
-  
-        // Add the user profile to the recipe object
-        recipesWithUserProfiles.push({
-          ...recipe,
-          user_profile: userProfile, // Attach user profile to the recipe
-        });
-      }
-  
-      setFeaturedRecipes(recipesWithUserProfiles); // Update the state with the fetched recipes and user profiles
+      
+      setFeaturedRecipes(recipesData); // Update the state with the fetched recipes and user profiles
     } catch (error) {
       console.error('Unexpected error while fetching recipes:', error);
     }
@@ -126,12 +82,12 @@ const SearchScreen = () => {
         return;
       }
       const recipeIds = categoryRecords.map((record) => record.recipe_id);
-      const recipesWithUserProfiles = [];
       for (const recipeId of recipeIds) {
         const { data: recipeData, error: recipeError } = await supabase
           .from('Recipes')
           .select(`
             *,
+            user_profile:Profiles(*),
             Categories(*),
             Cuisine(*),
             Ingredients(*),
@@ -144,24 +100,8 @@ const SearchScreen = () => {
           console.error(`Error fetching recipe ${recipeId}:`, recipeError);
           continue;
         }
-        const { user_id } = recipeData;
-        const { data: userProfile, error: userError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('user_id', user_id)
-          .single();
-  
-        if (userError) {
-          console.error(`Error fetching user profile for recipe ${recipeId}:`, userError);
-          continue;
-        }
-        recipesWithUserProfiles.push({
-          ...recipeData,
-          user_profile: userProfile, 
-        });
+        setFeaturedRecipes(recipeData);
       }
-  
-      setFeaturedRecipes(recipesWithUserProfiles);
     } catch (error) {
       console.error('Unexpected error while fetching recipes for category:', error);
     }

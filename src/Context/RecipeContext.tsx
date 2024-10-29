@@ -39,6 +39,7 @@ export const RecipeProvider: React.FC<RecipeProviderProps> = ({ children }) => {
         .from('Recipes')
         .select(`
           *,
+          user_profile:Profiles(*),
           Categories(*),
           Cuisine(*),
           Ingredients(*),
@@ -50,20 +51,8 @@ export const RecipeProvider: React.FC<RecipeProviderProps> = ({ children }) => {
         console.error('Error fetching recipes:', recipesError);
         return;
       }
-      const recipePromises = recipesData.map(async (recipe) => {
-        const { data: profileData, error: profileError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('user_id', recipe.user_id)
-          .single(); // Since you are expecting a single profile
-        if (profileError) {
-          console.error(`Error fetching profile for user_id: ${recipe.user_id}`, profileError);
-          return { ...recipe, user_profile: null }; // If there's an error, return the recipe without the profile
-        }
-        return { ...recipe, user_profile: profileData }; // Add the profile data to the recipe
-      });
-        const recipesWithProfiles = await Promise.all(recipePromises);
-      setUserRecipes(recipesWithProfiles);
+      
+      setUserRecipes(recipesData);
 
     } catch (err) {
       console.error('An error occurred while fetching recipes and profiles:', err);
@@ -76,7 +65,9 @@ export const RecipeProvider: React.FC<RecipeProviderProps> = ({ children }) => {
         .from('Recipes')
         .select(`
           *,
+          user_profile:Profiles(*),
           Categories(*),
+          Cuisine(*),
           Ingredients(*),
           Instructions(*),
           Nutrition(*)
@@ -86,20 +77,7 @@ export const RecipeProvider: React.FC<RecipeProviderProps> = ({ children }) => {
         console.error('Error fetching recipes:', recipesError);
         return;
       }
-      const recipePromises = recipesData.map(async (recipe) => {
-        const { data: profileData, error: profileError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('user_id', recipe.user_id)
-          .single(); // Since you are expecting a single profile
-        if (profileError) {
-          console.error(`Error fetching profile for user_id: ${recipe.user_id}`, profileError);
-          return { ...recipe, user_profile: null }; // If there's an error, return the recipe without the profile
-        }
-        return { ...recipe, user_profile: profileData }; // Add the profile data to the recipe
-      });
-        const recipesWithProfiles = await Promise.all(recipePromises);
-      setSelectedUserRecipes(recipesWithProfiles);
+      setSelectedUserRecipes(recipesData);
 
     } catch (err) {
       console.error('An error occurred while fetching recipes and profiles:', err);

@@ -233,33 +233,33 @@ const SingleRecipeScreen: React.FC = () => {
         <RecipeSummary
           prepTime={recipe.prep_time}
           coolTime={recipe.cook_time}
-          servings={recipe.Nutrition[0].serving_size}
-          calories={recipe.Nutrition[0].calories}
-          course={recipe.Categories[0].course}
-          cuisine={recipe.Categories[0].cuisine}
-          meal={recipe.Categories[0].meal}
+          servings={recipe.Nutrition[0].serving_size ? recipe.Nutrition[0].serving_size : 'N/A'}
+          calories={recipe.Nutrition[0].calories ? recipe.Nutrition[0].serving_size :  'N/A'}
+          course={recipe.Categories[0].course ? recipe.Nutrition[0].serving_size :  'N/A'}
+          cuisine={recipe.Categories[0].cuisine ? recipe.Nutrition[0].serving_size :  'N/A'}
+          meal={recipe.Categories[0].meal  ? recipe.Nutrition[0].serving_size :  'N/A'}
         />
-        {recipe.main_video && <DisplayVideoRecipe video={recipe.main_video}  maximize={() => {setMaximizeVideo(true)}}/>}
+        {recipe.main_video != null  ? <DisplayVideoRecipe video={recipe.main_video}  maximize={() => {setMaximizeVideo(true)}}/> : null}
         <IngredientsDetails instructions={recipe.Ingredients} />
         <InstructionsDetails instructions={recipe.Instructions} />
         <View style={tailwind`my-3`}>
           <Text style={tailwind`text-2xl font-bold mb-3`}>Tip / Advice</Text>
-          <Text style={tailwind`font-base`}>{recipe.tip}</Text>
+          <Text style={tailwind`text-base`}>{recipe.tip}</Text>
         </View>
         <CategoriesDetails
           categories={recipe.Categories}
           cuisine={recipe.Cuisine[0].cuisine}
         />
         <NutritionDetails
-          serving_size={recipe.Nutrition[0].serving_size}
-          calories={recipe.Nutrition[0].calories}
-          total_fats={recipe.Nutrition[0].total_fats}
-          saturated_fats={recipe.Nutrition[0].saturated_fats}
-          trans_fats={recipe.Nutrition[0].trans_fats}
-          sodium={recipe.Nutrition[0].sodium}
-          total_carbs={recipe.Nutrition[0].total_carbs}
-          total_sugar={recipe.Nutrition[0].total_sugar}
-          protein={recipe.Nutrition[0].protein}
+          serving_size={recipe.Nutrition[0].serving_size ? recipe.Nutrition[0].serving_size :  null}
+          calories={recipe.Nutrition[0].calories ? recipe.Nutrition[0].serving_size : null}
+          total_fats={recipe.Nutrition[0].total_fats ? recipe.Nutrition[0].serving_size : null}
+          saturated_fats={recipe.Nutrition[0].saturated_fats ? recipe.Nutrition[0].serving_size : null}
+          trans_fats={recipe.Nutrition[0].trans_fats ? recipe.Nutrition[0].serving_size : null}
+          sodium={recipe.Nutrition[0].sodium ? recipe.Nutrition[0].serving_size : null}
+          total_carbs={recipe.Nutrition[0].total_carbs ? recipe.Nutrition[0].serving_size : null}
+          total_sugar={recipe.Nutrition[0].total_sugar ? recipe.Nutrition[0].serving_size : null}
+          protein={recipe.Nutrition[0].protein ? recipe.Nutrition[0].serving_size : null}
         />
         <AuthorDetails profile={recipe.user_profile} />
         <View style={tailwind`w-full h-.5 rounded-full bg-black mt-4`}></View>

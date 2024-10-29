@@ -4,6 +4,7 @@ import { SafeAreaView, View } from 'react-native';
 import BottomTabNavigation from './src/Navigation/BottomTabNavigation';
 import tailwind from 'twrnc'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { storage } from './src/Utils/firebaseConfig';
 
 function App(): React.JSX.Element {
   return (

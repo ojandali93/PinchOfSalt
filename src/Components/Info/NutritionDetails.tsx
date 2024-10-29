@@ -3,15 +3,15 @@ import { Text, View } from 'react-native'
 import tailwind from 'twrnc'
 
 interface RecipeDetailsProps {
-  serving_size: string,
-  calories: string,
-  total_fats: string,
-  saturated_fats: string,
-  trans_fats: string,
-  sodium: string,
-  total_carbs: string,
-  total_sugar: string,
-  protein: string
+  serving_size: string | null,
+  calories: string | null,
+  total_fats: string | null,
+  saturated_fats: string | null,
+  trans_fats: string | null,
+  sodium: string | null,
+  total_carbs: string | null,
+  total_sugar: string | null,
+  protein: string | null
 }
 
 const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories, total_fats, 

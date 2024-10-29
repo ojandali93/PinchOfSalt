@@ -12,6 +12,8 @@ import { Plus } from 'react-native-feather';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { AuthStackParamList } from '../../Navigation/AuthStackNavigation';
 import ScrollSelect from '../../Components/Inputs/Content/ScrollSelect';
+import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
+import { storage } from '../../Utils/firebaseConfig';
 
 type SingleRecipeRouteProp = RouteProp<AuthStackParamList, 'ProfileSetupScreen'>;
 
@@ -86,6 +88,18 @@ const ProfileSetupScreen = () => {
       }
     });
   };
+
+  const uploadImage = async () => {
+    const folderName = 'ProfilePictures'; 
+    const response = await fetch(profilePicture.uri);
+    const blob = await response.blob(); 
+    const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
+
+    const storageRef = ref(storage, fileKey);
+    const snapshot = await uploadBytesResumable(storageRef, blob);
+  
+    const downloadURL = await getDownloadURL(snapshot.ref);
+  }
 
   return (
     <KeyboardAvoidingView

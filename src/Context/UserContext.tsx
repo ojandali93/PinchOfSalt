@@ -1,11 +1,9 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect, useRef } from 'react';
 import supabase from '../Utils/supabase';
-import { messaging, storage } from '../Utils/firebaseConfig';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
 import { Alert, Platform } from 'react-native';
 import { useRecipe } from './RecipeContext';
-import { getToken } from 'firebase/messaging';
-import { check, checkNotifications, PERMISSIONS, requestNotifications } from 'react-native-permissions';
+import { storage } from '../Utils/firebaseConfig';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -59,6 +57,7 @@ interface UserContextType {
   removeFromFavorite: (favorite: string, user_id: string) => void
   logoutCurrentUser: (navigation: any) => void
   userBlocked: any[]
+  deleteAccount: (profileId: number, navigation: any) => void
 }
 
 interface SingleImageProp {
@@ -93,9 +92,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [userFavorites, setUserFavorites] = useState<any[]>([])
   const [userBlocked, setUserBlocked] = useState<any[]>([])
 
-  // CREATING NEW USER FUNCTIONS
-  // - takes in several fields
-
   const createUserAccount = async (
     username: string, 
     email: string, 
@@ -110,7 +106,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   ) => {
     setCreatingProfile(true)
     try {
-      // Sign up the user with Supabase Auth
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email,        
         password: password, 
@@ -120,15 +115,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           }
         }
       });
-  
-      // Handle any errors from the sign-up process
       if (signUpError) {
         console.error('Error signing up:', signUpError.message);
         return;
       }
+      console.log(profilePic)
       uploadImageToFirebase(username, email, firstName, lastName, profilePic, bio, location, experience, navigation, data.user)
-
-      // Optionally insert the user profile in another table if neede
     } catch (error) {
       console.error('there was an error creating the users account: ', error)
     }
@@ -146,26 +138,29 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     navigation: any,
     user: any
   ) => {
-    if (!profilePic){
-      createUsersProfile(username, email, firstName, lastName, '', bio, location, experience, navigation, user.id)
+    if (!profilePic) {
+      console.log('no profile picture');
+      createUsersProfile(username, email, firstName, lastName, '', bio, location, experience, navigation, user.id);
+      return;
     }
+  
     try {
       const folderName = 'ProfilePictures'; 
-      const response = await fetch(profilePic.uri!);
+      const response = await fetch(profilePic.uri);
       const blob = await response.blob(); 
-      const fileKey = `${folderName}/${blob.data.name}`;
-
-      const storageRef = ref(storage, fileKey);
-      const snapshot = await uploadBytes(storageRef, blob);
+      const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
   
+      const storageRef = ref(storage, fileKey);
+      const snapshot = await uploadBytesResumable(storageRef, blob);
+    
       const downloadURL = await getDownloadURL(snapshot.ref);
-
-      createUsersProfile(username, email, firstName, lastName, downloadURL, bio, location, experience, navigation, user.id)
+      console.log('image downloadable url: ', downloadURL);
+      createUsersProfile(username, email, firstName, lastName, downloadURL, bio, location, experience, navigation, user.id);
     } catch (error) {
       console.error('Error uploading image:', error);
-      return '';
     }
   };
+  
 
   const createUsersProfile = async (
     username: string, 
@@ -397,7 +392,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           .from('Recipes')
           .select(`
             *,
-            Profiles(*),
+            user_profile:Profiles(*),
             Categories(*),
             Cuisine(*),
             Ingredients(*),
@@ -496,6 +491,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           .from('Recipes')
           .select(`
             *,
+            user_profile:Profiles(*),
             Categories(*),
             Cuisine(*),
             Ingredients(*),
@@ -586,6 +582,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       console.error('An error occurred while fetching user lists and recipes:', err);
     }
   };
+
+  const deleteAccount = async (profileId: number, navigation: any) => {
+    setCurrentProfile(null)
+    try {
+      const { data: collectionsData, error: collectionsError } = await supabase
+        .from('Profiles')
+        .delete()
+        .eq('id', profileId);
+      if (collectionsError) {
+        console.error('Error fetching collections:', collectionsError);
+        navigation.goBack()
+      }
+    } catch (err) {
+      console.error('An error occurred while fetching user lists and recipes:', err);
+    }
+  };
   
   return (
     <UserContext.Provider
@@ -615,7 +627,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         addToFavorite,
         removeFromFavorite,
         logoutCurrentUser,
-        userBlocked
+        userBlocked,
+        deleteAccount
       }}
     >
       {children}

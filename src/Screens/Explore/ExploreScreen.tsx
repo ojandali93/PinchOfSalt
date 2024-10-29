@@ -52,6 +52,7 @@ const ExploreScreen: React.FC = () => {
         .from('Recipes')
         .select(`
           *,
+          user_profile:Profiles(*),
           Categories(*),
           Cuisine(*),
           Ingredients(*),
@@ -64,23 +65,7 @@ const ExploreScreen: React.FC = () => {
         return;
       }
 
-      const recipePromises = recipesData.map(async (recipe) => {
-        const { data: profileData, error: profileError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('user_id', recipe.user_id)
-          .single();
-
-        if (profileError) {
-          console.error(`Error fetching profile for user_id: ${recipe.user_id}`, profileError);
-          return { ...recipe, user_profile: null }; // Assign profile or return null if error
-        }
-
-        return { ...recipe, user_profile: profileData }; // Attach profile
-      });
-
-      const recipesWithProfiles = await Promise.all(recipePromises);
-      setRecipes(recipesWithProfiles);
+      setRecipes(recipesData);
 
     } catch (err) {
       console.error('An error occurred while fetching recipes and profiles:', err);

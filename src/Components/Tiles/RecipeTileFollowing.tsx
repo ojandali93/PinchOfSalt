@@ -120,11 +120,11 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
 
   return ( 
     <TouchableOpacity onPress={() => showOptions || showReason ? closeOptions() : navigation.navigate('SingleRecipeScreen', { recipe })} style={tailwind`w-full rounded-3 bg-stone-200 mb-2`}>      
-      <TouchableOpacity onPress={() => showOptions || showReason ? closeOptions() : navigation.navigate('SelectedProfileScreen', { user_id: recipe.Profiles.user_id })} style={tailwind`w-full h-14 flex flex-row justify-between items-center px-2`}>
+      <TouchableOpacity onPress={() => showOptions || showReason ? closeOptions() : navigation.navigate('SelectedProfileScreen', { user_id: recipe.user_profile.user_id })} style={tailwind`w-full h-14 flex flex-row justify-between items-center px-2`}>
         <View style={tailwind`flex-1 h-full flex flex-row items-center`}>
-          <Image style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400`} source={{ uri: recipe.Profiles.profile_picture }} />
+          <Image style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400`} source={{ uri: recipe.user_profile.profile_picture }} />
           <View style={tailwind`ml-2`}>
-            <Text style={tailwind`font-bold text-base`}>{recipe.Profiles.username}</Text>
+            <Text style={tailwind`font-bold text-base`}>{recipe.user_profile.username}</Text>
           </View>
         </View>
         <TouchableOpacity onPress={() => {setShowOptions(!showOptions)}}>

@@ -16,6 +16,8 @@ interface RecipeProps {
 const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
   const navigation = useNavigation()
 
+  console.log('single Recipe: ', recipe)
+
   const { userFavorites, addToFavorite, removeFromFavorite, currentProfile } = useUser()
 
   const [showOptions, setShowOptions] = useState<boolean>(false)

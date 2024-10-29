@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Alert, FlatList, Image, Text, TouchableOpacity, View, RefreshControl } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Alert, FlatList, Image, Text, TouchableOpacity, View, RefreshControl, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import tailwind from 'twrnc';
 import StandardHeader from '../../Components/Headers/StandardHeader';
 import { useNavigation } from '@react-navigation/native';
@@ -20,10 +20,22 @@ const FeedScreen = () => {
   const [refreshing, setRefreshing] = useState(false); // Add refreshing state
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const submitUserLoginFeed = () => {
     loginUser(username, password, navigation, 'FeedScreen');
   };
+
+  useEffect(() => {
+    // Keyboard event listeners
+    const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const keyboardDidHide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    return () => {
+      keyboardDidShow.remove();
+      keyboardDidHide.remove();
+    };
+  }, []);
 
   const goToAddRecipes = () => {
     if (!currentProfile) {
@@ -48,39 +60,41 @@ const FeedScreen = () => {
 
   const displayLogin = () => {
     return (
-      <View style={tailwind`flex-1`}>
-        <View>
-          <StandardHeader
-            header="Dine With Me"
-            add={true}
-            addClick={goToAddRecipes}
-            notifications={true}
-            notificationsClick={() => {}}
-            favorites={true}
-            favoritesClick={() => {}}
-          />
-          <View style={tailwind`p-2`}>
-            <TemplateRecipe />
-            <TemplateRecipe />
-          </View>
-        </View>
-
-        <BlurView
-          style={tailwind`absolute w-full h-full top-0 left-0 right-0 bottom-0 z-10`}
-          blurType="dark"
-          blurAmount={5}
-        />
-
-        <View style={tailwind`absolute top-0 left-0 right-0 bottom-0 z-20 flex justify-end`}>
-          <View style={tailwind`w-full py-6 px-4`}>
-            <View style={tailwind`w-full flex flex-col items-center`}>
-              <Image style={tailwind`h-32 w-32`} source={Logo} />
-              <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Pinch of Salt</Text>
-              <Text style={tailwind`text-xl font-semibold text-white mt-1 mb-6`}>
-                Discovering Amazing Recipes
-              </Text>
+      <KeyboardAvoidingView
+        style={tailwind`flex-1 absolute w-full h-full top-0 left-0 right-0 bottom-0 z-15`}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={tailwind`flex-1`}>
+          <View>
+            <StandardHeader
+              header="Dine With Me"
+              add={true}
+              addClick={goToAddRecipes}
+              notifications={true}
+              notificationsClick={() => {}}
+              favorites={true}
+              favoritesClick={() => {}}
+            />
+            <View style={tailwind`p-2`}>
+              <TemplateRecipe />
+              <TemplateRecipe />
             </View>
-            <View style={tailwind``}>
+          </View>
+
+          <BlurView
+            style={tailwind`absolute w-full h-full top-0 left-0 right-0 bottom-0 z-10`}
+            blurType="dark"
+            blurAmount={5}
+          />
+          <View style={tailwind`absolute top-0 left-0 right-0 bottom-0 z-20 flex justify-end`}>
+            <View style={tailwind`w-full py-6 px-4`}>
+              <View style={tailwind`w-full flex flex-col items-center`}>
+                <Image style={tailwind`h-32 w-32`} source={Logo} />
+                <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Pinch of Salt</Text>
+                <Text style={tailwind`text-xl font-semibold text-white mt-1 mb-6`}>
+                  Discovering Amazing Recipes
+                </Text>
+              </View>
               <AuthInput
                 icon="User"
                 valid={false}
@@ -94,41 +108,40 @@ const FeedScreen = () => {
                 loading={false}
                 capitalization={false}
               />
-            </View>
+              <View style={tailwind`mt-4`}>
+                <AuthInput
+                  icon="Lock"
+                  valid={false}
+                  validation={false}
+                  placeholder="Password..."
+                  placeholderColor="grey"
+                  multi={false}
+                  secure={true}
+                  value={password}
+                  onChange={setPassword}
+                  loading={false}
+                  capitalization={false}
+                />
+              </View>
 
-            <View style={tailwind`mt-4`}>
-              <AuthInput
-                icon="Lock"
-                valid={false}
-                validation={false}
-                placeholder="Password..."
-                placeholderColor="grey"
-                multi={false}
-                secure={true}
-                value={password}
-                onChange={setPassword}
-                loading={false}
-                capitalization={false}
-              />
-            </View>
+              <View style={tailwind`w-full flex flex-row justify-end mt-1`}>
+                <Text style={tailwind`text-white font-bold`}>Forgot Password?</Text>
+              </View>
 
-            <View style={tailwind`w-full flex flex-row justify-end mt-1`}>
-              <Text style={tailwind`text-white font-bold`}>Forgot Password?</Text>
-            </View>
+              <View style={tailwind`mt-4`}>
+                <RedButton submit={submitUserLoginFeed} loading={false} />
+              </View>
 
-            <View style={tailwind`mt-4`}>
-              <RedButton submit={submitUserLoginFeed} loading={false} />
-            </View>
-
-            <View style={tailwind`w-full flex flex-row justify-center items-center mt-3`}>
-              <Text style={tailwind`text-white font-bold`}>Don't have an account?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('SignupScreenFeed')}>
-                <Text style={tailwind`ml-1 font-semibold text-red-500`}>Create Account</Text>
-              </TouchableOpacity>
+              <View style={tailwind`w-full flex flex-row justify-center items-center mt-3`}>
+                <Text style={tailwind`text-white font-bold`}>Don't have an account?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('SignupScreenFeed')}>
+                  <Text style={tailwind`ml-1 font-semibold text-red-500`}>Create Account</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   };
 
