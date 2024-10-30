@@ -30,8 +30,10 @@ const SingleRecipeScreen: React.FC = () => {
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comment, setComment] = useState<string>('');
   const [allComments, setAllComments] = useState<any[]>([]);
+  const [favoritesStatus, setFavoritesStatus] = useState<boolean>(false); 
+  const [allFavorites, setAllFavorites] = useState<any[]>([])
   const [allLikes, setAllLikes] = useState<any[]>([]);
-  const [likeStatus, setLikeStatus] = useState<boolean>(false); // Track like status
+  const [likeStatus, setLikeStatus] = useState<boolean>(false);
   
   const [maximizeVideo, setMaximizeVideo] = useState<boolean>(false)
 
@@ -41,13 +43,40 @@ const SingleRecipeScreen: React.FC = () => {
 
   useEffect(() => {
     getComments();
+    getFavorites();
     getLikes();
   }, []);
+
+  const getFavorites = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('Favorites')
+        .select('*')
+        .eq('recipe_id', recipe.id);
+
+      if (error) {
+        console.error('Error getting likes:', error);
+        return;
+      }
+
+      setAllFavorites(data);
+
+      // Check if the user has liked the recipe
+      const userLike = data.find((like: any) => like.user_id === currentProfile?.user_id);
+      if (userLike) {
+        setFavoritesStatus(true);
+      } else {
+        setFavoritesStatus(false);
+      }
+    } catch (error) {
+      console.error('Unexpected error while getting likes:', error);
+    }
+  };
 
   const getLikes = async () => {
     try {
       const { data, error } = await supabase
-        .from('Favorites')
+        .from('Likes')
         .select('*')
         .eq('recipe_id', recipe.id);
 
@@ -70,7 +99,7 @@ const SingleRecipeScreen: React.FC = () => {
     }
   };
 
-  const addLike = async () => {
+  const addFavorite = async () => {
     if (!currentProfile) {
       Alert.alert('Login Required', 'You need to be logged in to like a recipe.', [
         {
@@ -97,6 +126,40 @@ const SingleRecipeScreen: React.FC = () => {
       if (error) {
         console.error('Error adding like:', error);
       } else {
+        getFavorites(); // Refresh likes after adding
+      }
+    } catch (error) {
+      console.error('Unexpected error while adding like:', error);
+    }
+  };
+
+  const addLike = async () => {
+    if (!currentProfile) {
+      Alert.alert('Login Required', 'You need to be logged in to like a recipe.', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Login',
+          onPress: () => navigation.navigate('LoginScreenFeed'),
+        },
+      ]);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('Likes')
+        .insert([
+          {
+            recipe_id: recipe.id,
+            user_id: currentProfile.user_id,
+          },
+        ]);
+      if (error) {
+        console.error('Error adding like:', error);
+      } else {
         getLikes(); // Refresh likes after adding
       }
     } catch (error) {
@@ -104,7 +167,7 @@ const SingleRecipeScreen: React.FC = () => {
     }
   };
 
-  const removeLike = async () => {
+  const removeFavorite = async () => {
     if (!currentProfile) {
       Alert.alert('Login Required', 'You need to be logged in to unlike a recipe.', [
         {
@@ -122,6 +185,38 @@ const SingleRecipeScreen: React.FC = () => {
     try {
       const { error } = await supabase
         .from('Favorites')
+        .delete()
+        .eq('recipe_id', recipe.id)
+        .eq('user_id', currentProfile.user_id);
+
+      if (error) {
+        console.error('Error removing like:', error);
+      } else {
+        getFavorites(); // Refresh likes after removing
+      }
+    } catch (error) {
+      console.error('Unexpected error while removing like:', error);
+    }
+  };
+
+  const removeLikes = async () => {
+    if (!currentProfile) {
+      Alert.alert('Login Required', 'You need to be logged in to unlike a recipe.', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Login',
+          onPress: () => navigation.navigate('LoginScreenFeed'),
+        },
+      ]);
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('Likes')
         .delete()
         .eq('recipe_id', recipe.id)
         .eq('user_id', currentProfile.user_id);
@@ -222,10 +317,14 @@ const SingleRecipeScreen: React.FC = () => {
       <StandardHeader
         header={recipe.title}
         back={true}
+        activeFavorites={true}
+        activeFavoritesStatus={favoritesStatus}
+        addFavorite={addFavorite}
+        removeFavofite={removeFavorite}
         like={true}
         likeStatus={likeStatus}
         addLike={addLike}
-        removeLike={removeLike}
+        removeLike={removeLikes}
       />
       <ScrollView ref={scrollViewRef} style={tailwind`p-3`} onScroll={handleScroll} scrollEventThrottle={16}>
         <DisplayImageRecipe image={recipe.main_image} />

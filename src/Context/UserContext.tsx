@@ -4,6 +4,7 @@ import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase
 import { Alert, Platform } from 'react-native';
 import { useRecipe } from './RecipeContext';
 import { storage } from '../Utils/firebaseConfig';
+import messaging from '@react-native-firebase/messaging'
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -246,6 +247,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const loginUser = async (username: string, password: string, navigation: any, screen: string) => {
     setLoggingIn(true)
+    getFCMToken()
     try {
       const { data, error } = await supabase
         .from('Profiles')
@@ -288,6 +290,21 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       console.error('Error logging in:', err.message);
       setLoggingIn(false)
       Alert.alert('An error occurred', 'Please try again later.');
+    }
+  };
+
+  const getFCMToken = async () => {
+    try {
+      const authorizationStatus = await messaging().requestPermission();
+      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED) {
+        console.log('User has notification permissions enabled.');
+      } else if (authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+        console.log('User has provisional notification permissions.');
+      } else {
+        console.log('User has notification permissions disabled');
+      }
+    } catch (err) {
+      console.log('major error:', err);
     }
   };
 

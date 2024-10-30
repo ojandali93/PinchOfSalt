@@ -1,12 +1,12 @@
 import 'react-native-url-polyfill/auto';
-import React from 'react';
-import { SafeAreaView, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Alert, SafeAreaView, View } from 'react-native';
 import BottomTabNavigation from './src/Navigation/BottomTabNavigation';
 import tailwind from 'twrnc'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { storage } from './src/Utils/firebaseConfig';
 
 function App(): React.JSX.Element {
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={tailwind`h-full w-full`}>

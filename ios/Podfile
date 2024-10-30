@@ -17,6 +17,16 @@ end
 target 'PinchofSalt' do
   config = use_native_modules!
 
+  firebase_version = '10.29.0'  # Align all Firebase dependencies to this version
+
+  pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  $RNFirebaseAnalyticsWithoutAdIdSupport = true
+
+  pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
+  pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.

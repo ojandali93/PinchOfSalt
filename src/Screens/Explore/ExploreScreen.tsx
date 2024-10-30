@@ -58,7 +58,7 @@ const ExploreScreen: React.FC = () => {
           Ingredients(*),
           Instructions(*),
           Nutrition(*)
-        `);
+        `)
 
       if (recipesError) {
         console.error('Error fetching recipes:', recipesError);
@@ -80,56 +80,56 @@ const ExploreScreen: React.FC = () => {
     );
   };
 
+  const getRecipeChunks = () => {
+    let chunks = [];
+    for (let i = 0; i < recipes.length; i += 9) {
+      const chunk = recipes.slice(i, i + 9); // Get up to 9 recipes per chunk
+      chunks.push(chunk); // Push even if it's less than 9
+    }
+    return chunks;
+  };
+  
   const renderRecipeGrid = (recipeChunk: any[]) => {
     return (
       <View>
         {/* First Row: 2x2 on the left, two 1x1 on the right */}
         <View style={tailwind`flex-row`}>
           <View style={tailwind`w-2/3 h-80 p-1`}>
-            {renderRecipeItem(recipeChunk[0], tailwind`flex-1`)}
+            {recipeChunk[0] && renderRecipeItem(recipeChunk[0], tailwind`flex-1`)}
           </View>
           <View style={tailwind`w-1/3 h-80`}>
             <View style={tailwind`flex-1 p-1`}>
-              {renderRecipeItem(recipeChunk[1], tailwind`flex-1`)}
+              {recipeChunk[1] && renderRecipeItem(recipeChunk[1], tailwind`flex-1`)}
             </View>
             <View style={tailwind`flex-1 p-1`}>
-              {renderRecipeItem(recipeChunk[2], tailwind`flex-1`)}
+              {recipeChunk[2] && renderRecipeItem(recipeChunk[2], tailwind`flex-1`)}
             </View>
           </View>
         </View>
-
+  
         {/* Second Row: 3x1 layout */}
         <View style={tailwind`flex-row h-40`}>
-          <View style={tailwind`flex-1 p-1`}>{renderRecipeItem(recipeChunk[3], tailwind`flex-1`)}</View>
-          <View style={tailwind`flex-1 p-1`}>{renderRecipeItem(recipeChunk[4], tailwind`flex-1`)}</View>
-          <View style={tailwind`flex-1 p-1`}>{renderRecipeItem(recipeChunk[5], tailwind`flex-1`)}</View>
+          <View style={tailwind`flex-1 p-1`}>{recipeChunk[3] && renderRecipeItem(recipeChunk[3], tailwind`flex-1`)}</View>
+          <View style={tailwind`flex-1 p-1`}>{recipeChunk[4] && renderRecipeItem(recipeChunk[4], tailwind`flex-1`)}</View>
+          <View style={tailwind`flex-1 p-1`}>{recipeChunk[5] && renderRecipeItem(recipeChunk[5], tailwind`flex-1`)}</View>
         </View>
-
+  
         {/* Third Row: Two 1x1 on the left, 2x2 on the right */}
         <View style={tailwind`flex-row`}>
           <View style={tailwind`w-1/3 h-80`}>
             <View style={tailwind`flex-1 p-1`}>
-              {renderRecipeItem(recipeChunk[6], tailwind`flex-1`)}
+              {recipeChunk[6] && renderRecipeItem(recipeChunk[6], tailwind`flex-1`)}
             </View>
             <View style={tailwind`flex-1 p-1`}>
-              {renderRecipeItem(recipeChunk[7], tailwind`flex-1`)}
+              {recipeChunk[7] && renderRecipeItem(recipeChunk[7], tailwind`flex-1`)}
             </View>
           </View>
           <View style={tailwind`w-2/3 h-80 p-1`}>
-            {renderRecipeItem(recipeChunk[8], tailwind`flex-1`)}
+            {recipeChunk[8] && renderRecipeItem(recipeChunk[8], tailwind`flex-1`)}
           </View>
         </View>
       </View>
     );
-  };
-
-  const getRecipeChunks = () => {
-    let chunks = [];
-    for (let i = 0; i < recipes.length; i += 9) {
-      const chunk = recipes.slice(i, i + 9); // Get 9 recipes per chunk
-      if (chunk.length === 9) chunks.push(chunk); // Only add full chunks
-    }
-    return chunks;
   };
 
   return (

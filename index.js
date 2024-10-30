@@ -7,15 +7,17 @@ import { UserProvider } from './src/Context/UserContext';
 import { RecipeProvider } from './src/Context/RecipeContext';
 import { ListProvider } from './src/Context/ListContext';
 
+const RootApp = () => {
 
-const RootApp = () => (
-  <RecipeProvider>
-    <UserProvider>
-      <ListProvider>
-        <App />
-      </ListProvider>
-    </UserProvider>
-  </RecipeProvider>
-);
+  return(
+    <RecipeProvider>
+      <UserProvider>
+        <ListProvider>
+          <App />
+        </ListProvider>
+      </UserProvider>
+    </RecipeProvider>
+  )
+};
 
 AppRegistry.registerComponent(appName, () => RootApp);

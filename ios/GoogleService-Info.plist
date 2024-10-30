@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDBN5S1yllMwCjMbM8Uc1iZ6CwI-QzMJ_A</string>
+	<key>GCM_SENDER_ID</key>
+	<string>602997246595</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>app.pinchofsalt.pinchofsalt</string>
+	<key>PROJECT_ID</key>
+	<string>pinchofsalt-ffc9d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>pinchofsalt-ffc9d.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:602997246595:ios:f47e788e5d4022d19d29b6</string>
+</dict>
+</plist>

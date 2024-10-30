@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Alert, Dimensions, Image, Modal, Text, TouchableOpacity, View } from 'react-native'
-import { Bookmark, BookmarkFill, MoreHorizontal, Heart, File, User } from 'react-native-feather';// Assuming you have a filled bookmark icon
+import { Bookmark, BookmarkFill, MoreHorizontal, Heart, File, User, ChevronsRight, MessageSquare } from 'react-native-feather';// Assuming you have a filled bookmark icon
 import tailwind from 'twrnc'
 import { useNavigation } from '@react-navigation/native'
 import { useUser } from '../../Context/UserContext'
@@ -21,9 +21,18 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
   const [showOptions, setShowOptions] = useState<boolean>(false)
   const [showReason, setShowReason] = useState<boolean>(false)
   const [reportType, setReportType] = useState<string>('')
+  const [userLikes, setUserLikes] = useState<any[]>([])
+  const [userComments, setRecipeComments] = useState<any[]>([])
+
+  useEffect(() => {
+    grabRecipeLikes()
+    grabRecipeComments()
+  }, [])
 
   // Store the actual favorite record, if it exists
   const isFavorite = userFavorites.find((favorite) => favorite.recipe_id === recipe.id)
+  const isLikedByUser = userLikes.some((like) => like.user_id === currentProfile.user_id)
+
 
   const handleFavoriteToggle = () => {
     if (isFavorite) {
@@ -32,6 +41,38 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
     } else {
       // If the record doesn't exist, add the recipe to favorites
       addToFavorite(currentProfile.user_id, recipe.id)
+    }
+  }
+
+  const grabRecipeLikes = async () => {
+    try {
+      const { data: collectionsData, error: collectionsError } = await supabase
+        .from('Likes')
+        .select(`*`)
+        .eq('recipe_id', recipe.id); 
+      if (collectionsError) {
+        console.error('Error fetching collections:', collectionsError);
+        return;
+      }
+      setUserLikes(collectionsData)
+    } catch (err) {
+      console.error('An error occurred while fetching user lists and recipes:', err);
+    }
+  }
+
+  const grabRecipeComments = async () => {
+    try {
+      const { data: collectionsData, error: collectionsError } = await supabase
+        .from('Comments')
+        .select(`*`)
+        .eq('recipe_id', recipe.id); 
+      if (collectionsError) {
+        console.error('Error fetching collections:', collectionsError);
+        return;
+      }
+      setRecipeComments(collectionsData)
+    } catch (err) {
+      console.error('An error occurred while fetching user lists and recipes:', err);
     }
   }
 
@@ -118,8 +159,61 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
     }
   }
 
+  const lastTapRef = useRef<number>(0);
+
+  const handleDoubleTap = () => {
+    const now = Date.now()
+    const DOUBLE_TAP_DELAY = 300 
+
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      if (isLikedByUser) {
+        removeLikes()
+      } else {
+        addLikes()
+      }
+    }
+    lastTapRef.current = now
+  }
+
+  const addLikes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('Likes')
+        .insert([
+          { user_id: currentProfile.user_id, recipe_id: recipe.id }
+        ])
+        .select()
+      if (error) {
+        console.error('Error adding like:', error)
+        return
+      }
+      grabRecipeLikes()
+    } catch (error) {
+      console.error('Error creating like:', error)
+    }
+  }
+
+  const removeLikes = async () => {
+    const likeToDelete = userLikes.find((like) => like.user_id === currentProfile.user_id)
+    if (!likeToDelete) return
+
+    try {
+      const { error } = await supabase
+        .from('Likes')
+        .delete()
+        .eq('id', likeToDelete.id)
+      if (error) {
+        console.error('Error deleting like:', error)
+        return
+      }
+      grabRecipeLikes()
+    } catch (error) {
+      console.error('Error deleting like:', error)
+    }
+  }
+
   return ( 
-    <TouchableOpacity onPress={() => showOptions || showReason ? closeOptions() : navigation.navigate('SingleRecipeScreen', { recipe })} style={tailwind`w-full rounded-3 bg-stone-200 mb-2`}>      
+    <View style={tailwind`w-full rounded-3 bg-stone-200 mb-2`}>      
       <TouchableOpacity onPress={() => showOptions || showReason ? closeOptions() : navigation.navigate('SelectedProfileScreen', { user_id: recipe.user_profile.user_id })} style={tailwind`w-full h-14 flex flex-row justify-between items-center px-2`}>
         <View style={tailwind`flex-1 h-full flex flex-row items-center`}>
           <Image style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400`} source={{ uri: recipe.user_profile.profile_picture }} />
@@ -131,11 +225,12 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
           <MoreHorizontal height={24} width={24} color={'black'} />
         </TouchableOpacity>
       </TouchableOpacity>
-      <View style={[tailwind`w-full rounded-3`, { height: imageHeight }]}>
-        <Image style={tailwind`w-full h-86 rounded-3`} source={{ uri: recipe.main_image }} />
-      </View>
-      <View style={[tailwind`absolute z-10 opacity-50 w-full h-86 bg-slate-900 rounded-3 mt-14`, { height: imageHeight }]}></View>
-      <View style={[tailwind`absolute z-15 w-full h-86 mt-14 flex flex-col justify-between py-4 px-3`, { height: imageHeight }]}>
+      <TouchableOpacity onPress={handleDoubleTap}>
+        <View style={[tailwind`w-full rounded-3`, { height: imageHeight }]}>
+          <Image style={tailwind`w-full h-86 rounded-3`} source={{ uri: recipe.main_image }} />
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleDoubleTap} style={[tailwind`absolute z-15 w-full h-86 mt-14 flex flex-col justify-between py-4 px-3`, { height: imageHeight }]}>
         <View style={tailwind`flex flex-row justify-between`}>
           <Text style={tailwind`text-base font-bold text-white`}>Yield: {recipe.yield}</Text>
           <TouchableOpacity onPress={handleFavoriteToggle}>
@@ -207,8 +302,27 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
               </View>
             : null
         }
+      </TouchableOpacity>
+      <View style={[tailwind`absolute z-10 opacity-50 w-full h-86 bg-slate-900 rounded-3 mt-14`, { height: imageHeight }]}></View>
+      <View style={tailwind`w-full flex`}>
+        <View style={tailwind`w-full h-12 flex flex-row items-center justify-between px-3`}>
+          <View style={tailwind`flex flex-row items-center`}>
+            <View style={tailwind`flex flex-row items-center`}>
+              <Heart height={24} width={24} color={'black'}/>
+              <Text style={tailwind`ml-1 text-base font-bold`}>{userLikes.length}</Text>
+            </View>
+            <View style={tailwind`flex flex-row items-center ml-4`}>
+              <MessageSquare height={24} width={24} color={'black'}/>
+              <Text style={tailwind`ml-1 text-base font-bold`}>{userComments.length}</Text>
+            </View>
+          </View>
+          <TouchableOpacity onPress={() => {navigation.navigate('SingleRecipeScreen', {recipe: recipe})}} style={tailwind`flex flex-row items-center bg-red-500 px-3 py-1 rounded-2`}>
+            <Text style={tailwind`text-sm text-white font-bold`}>View Recipe</Text>
+            <ChevronsRight height={24} width={24} color={'white'}/>
+          </TouchableOpacity>
+        </View>
       </View>
-    </TouchableOpacity>
+    </View>
   )
 }
 

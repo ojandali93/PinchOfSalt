@@ -19,6 +19,10 @@ interface StandardHeaderProps {
   likeStatus?: boolean,
   addLike?: () => void,
   removeLike?: () => void,
+  activeFavorites?: boolean,
+  activeFavoritesStatus?: boolean,
+  addFavorite?: () => void,
+  removeFavofite?: () => void
 }
 
 const StandardHeader: React.FC<StandardHeaderProps> = (
@@ -36,7 +40,11 @@ const StandardHeader: React.FC<StandardHeaderProps> = (
     like,
     likeStatus,
     addLike,
-    removeLike
+    removeLike,
+    activeFavorites,
+    activeFavoritesStatus,
+    addFavorite,
+    removeFavofite
   }
 ) => {
 
@@ -65,21 +73,49 @@ const StandardHeader: React.FC<StandardHeaderProps> = (
             </TouchableOpacity>
           )}
           {notifications && (
-            <TouchableOpacity onPress={favoritesClick} style={tailwind`ml-4`}>
-              <Bookmark height={24} width={24} color={'white'} />
+            <TouchableOpacity 
+              onPress={() => {navigation.navigate('NotificationsScreen')}} 
+              style={tailwind`ml-4`}
+            >
+              <Bell 
+                height={24} 
+                width={24} 
+                color={'white'}
+              />
             </TouchableOpacity>
           )}
           {favorites && (
-            <TouchableOpacity onPress={notificationsClick} style={tailwind`ml-4`}>
-              <Bell height={24} width={24} color={'white'} />
-            </TouchableOpacity>
+            <TouchableOpacity 
+            onPress={() => {favoritesClick()}} 
+            style={tailwind`ml-4`}
+          >
+            <Bookmark 
+              height={24} 
+              width={24} 
+              color={'white'} // Filled heart if liked, outlined if not
+              fill={likeStatus ? 'white' : 'none'} // Outline or filled based on status
+            />
+          </TouchableOpacity>
+          )}
+          {activeFavorites && (
+            <TouchableOpacity 
+            onPress={() => {activeFavoritesStatus ? removeFavofite() : addFavorite() }} 
+            style={tailwind`ml-4`}
+          >
+            <Bookmark 
+              height={24} 
+              width={24} 
+              color={'white'} // Filled heart if liked, outlined if not
+              fill={activeFavoritesStatus ? 'white' : 'none'} // Outline or filled based on status
+            />
+          </TouchableOpacity>
           )}
           {like && (
             <TouchableOpacity 
-              onPress={likeStatus ? removeLike : addLike} 
+              onPress={() => {likeStatus ? removeLike() : addLike()}} 
               style={tailwind`ml-4`}
             >
-              <Bookmark 
+              <Heart 
                 height={24} 
                 width={24} 
                 color={'white'} // Filled heart if liked, outlined if not
