@@ -15,10 +15,11 @@ const NutritionalFacts: React.FC<NutritionFactsProps> = ({nutritionalFacts, upda
         <TextInput 
           value={nutritionalFacts.servingSize}
           onChangeText={(value) => updateNutritionalFact('servingSize', value)}
-          placeholder={'Enter serving size'}
+          placeholder={'serving size'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
       <View style={tailwind`flex flex-row justify-between mb-2`}>
@@ -26,109 +27,119 @@ const NutritionalFacts: React.FC<NutritionFactsProps> = ({nutritionalFacts, upda
         <TextInput 
           value={nutritionalFacts.calories}
           onChangeText={(value) => updateNutritionalFact('calories', value)}
-          placeholder={'Enter calories'}
+          placeholder={'calories'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
       <View style={tailwind`flex flex-row justify-between mb-2`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Total Fats</Text>
+        <Text style={tailwind`text-lg text-black mr-2`}>Total Fats (g)</Text>
         <TextInput 
           value={nutritionalFacts.totalFats}
           onChangeText={(value) => updateNutritionalFact('totalFats', value)}
-          placeholder={'Enter total fats'}
+          placeholder={'total fats'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
-      <View style={tailwind`flex flex-row justify-between mb-2 px-4`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Saturated Fats</Text>
+      <View style={tailwind`flex flex-row justify-between mb-2 pl-4`}>
+        <Text style={tailwind`text-lg text-black mr-2`}>Saturated Fats (g)</Text>
         <TextInput 
           value={nutritionalFacts.saturatedFats}
           onChangeText={(value) => updateNutritionalFact('saturatedFats', value)}
-          placeholder={'Enter saturated fats'}
+          placeholder={'sat. fats'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
-      <View style={tailwind`flex flex-row justify-between mb-2 px-4`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Trans Fats</Text>
+      <View style={tailwind`flex flex-row justify-between mb-2 pl-4`}>
+        <Text style={tailwind`text-lg text-black mr-2`}>Trans Fats (g)</Text>
         <TextInput 
           value={nutritionalFacts.transFats}
           onChangeText={(value) => updateNutritionalFact('transFats', value)}
-          placeholder={'Enter trans fats'}
+          placeholder={'trans fats'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
       <View style={tailwind`flex flex-row justify-between mb-2`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Cholestoral</Text>
+        <Text style={tailwind`text-lg text-black mr-2`}>Cholestoral (g)</Text>
         <TextInput 
           value={nutritionalFacts.cholesterol}
           onChangeText={(value) => updateNutritionalFact('cholesterol', value)}
-          placeholder={'Enter cholesterol'}
+          placeholder={'cholesterol'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
-          style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base pl-1`}
+          keyboardType='number-pad'
         />
       </View>
       <View style={tailwind`flex flex-row justify-between mb-2`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Sodium</Text>
+        <Text style={tailwind`text-lg text-black mr-2`}>Sodium (mg)</Text>
         <TextInput 
           value={nutritionalFacts.sodium}
           onChangeText={(value) => updateNutritionalFact('sodium', value)}
-          placeholder={'Enter sodium'}
+          placeholder={'sodium'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
       <View style={tailwind`flex flex-row justify-between mb-2`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Total Carbohydrates</Text>
+        <Text style={tailwind`text-lg text-black mr-2`}>Total Carbohydrates (g)</Text>
         <TextInput 
           value={nutritionalFacts.totalCarbohydrates}
           onChangeText={(value) => updateNutritionalFact('totalCarbohydrates', value)}
-          placeholder={'Enter total carbs'}
+          placeholder={'total carbs'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
-      <View style={tailwind`flex flex-row justify-between mb-2 px-4`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Dietary Fiber</Text>
+      <View style={tailwind`flex flex-row justify-between mb-2 pl-4`}>
+        <Text style={tailwind`text-lg text-black mr-2`}>Dietary Fiber (g)</Text>
         <TextInput 
           value={nutritionalFacts.dietaryFiber}
           onChangeText={(value) => updateNutritionalFact('dietaryFiber', value)}
-          placeholder={'Enter dietary fiber'}
+          placeholder={'dietary fiber'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
-      <View style={tailwind`flex flex-row justify-between mb-2 px-4`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Total Sigars</Text>
+      <View style={tailwind`flex flex-row justify-between mb-2 pl-4`}>
+        <Text style={tailwind`text-lg text-black mr-2`}>Total Sigars (g)</Text>
         <TextInput 
           value={nutritionalFacts.totalSugars}
           onChangeText={(value) => updateNutritionalFact('totalSugars', value)}
-          placeholder={'Enter total sugar'}
+          placeholder={'total sugar'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
       <View style={tailwind`flex flex-row justify-between mb-2`}>
-        <Text style={tailwind`text-lg text-black mr-2`}>Protien</Text>
+        <Text style={tailwind`text-lg text-black mr-2`}>Protien (g)</Text>
         <TextInput 
           value={nutritionalFacts.protein}
           onChangeText={(value) => updateNutritionalFact('protein', value)}
-          placeholder={'Enter protien'}
+          placeholder={'protien'}
           placeholderTextColor={'grey'}
           autoCapitalize={'none'}
           style={tailwind`w-1/3 border-b-2 border-b-stone-700 text-base px-1`}
+          keyboardType='number-pad'
         />
       </View>
     </View>

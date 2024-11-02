@@ -36,8 +36,8 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
 
 
   // Store the actual favorite record, if it exists
-  const isFavorite = userFavorites.find((favorite) => favorite.recipe_id === recipe.id)
-  const isLikedByUser = userLikes.some((like) => like.user_id === currentProfile.user_id)
+  const isFavorite = userLikes && userFavorites.find((favorite) => favorite.recipe_id === recipe.id)
+  const isLikedByUser = currentProfile && userLikes.some((like) => like.user_id === currentProfile.user_id)
 
 
   const handleFavoriteToggle = () => {

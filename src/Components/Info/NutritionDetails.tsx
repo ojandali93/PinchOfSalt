@@ -24,7 +24,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         serving_size
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Serving Size:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{serving_size}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{serving_size} Servings</Text>
             </View>
           : null
       }
@@ -32,7 +32,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         calories
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Calories:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{calories}</Text>
+              <Text style={tailwind`text-base font-bold`}>{calories}</Text>
             </View>
           : null
       }
@@ -40,7 +40,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         total_fats
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Total Fats:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{total_fats}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{total_fats}g</Text>
             </View>
           : null
       }
@@ -48,7 +48,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         saturated_fats
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Saturated Fats:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{saturated_fats}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{saturated_fats}g</Text>
             </View>
           : null
       }
@@ -56,7 +56,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         trans_fats
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Total Carbs:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{trans_fats}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{trans_fats}g</Text>
             </View>
           : null
       }
@@ -64,7 +64,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         sodium
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Sodium:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{sodium}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{sodium}mg</Text>
             </View>
           : null
       }
@@ -72,7 +72,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         total_carbs
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Total Carbs:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{total_carbs}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{total_carbs}g</Text>
             </View>
           : null
       }
@@ -80,7 +80,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         total_sugar
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Total Sugars:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{total_sugar}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{total_sugar}g</Text>
             </View>
           : null
       }
@@ -88,7 +88,7 @@ const NutritionDetails: React.FC<RecipeDetailsProps> = ({serving_size, calories,
         protein
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Protein:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{protein}</Text>
+              <Text style={tailwind`text-base font-semibold`}>{protein}g</Text>
             </View>
           : null
       }

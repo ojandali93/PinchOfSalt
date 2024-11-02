@@ -13,6 +13,7 @@ import SearchHeader from '../../Components/Headers/SearchHeader'
 import SearchInput from '../../Components/Inputs/Content/SearchInput'
 import supabase from '../../Utils/supabase'
 import { useUser } from '../../Context/UserContext'
+import { useApp } from '../../Context/AppContext'
 
 type SingleRecipeRouteProp = RouteProp<ListStackParamsList, 'ListDetailsScreen'>;
 
@@ -21,6 +22,8 @@ const ListDetailsScreen = () => {
   const { list } = route.params;
 
   const {listMembers, getListMembers} = useList()
+  const { createNotification } = useApp()
+  const { currentProfile } = useUser()
 
   const [addingMembers, setAddingMembers] = useState<boolean>(false)
   const [selectedMembers, setSelectedMembers] = useState<any[]>([])
@@ -76,12 +79,23 @@ const ListDetailsScreen = () => {
               member_id: user_id, 
               status: 'pending', 
             }
-          ]);
+          ])
+          .select();
   
         if (error) {
           console.error(`Error adding user ${user_id} to list ${list.id}:`, error);
           return null; // Return null in case of error
         }
+        createNotification(
+          user_id,
+          null,
+          null,
+          null,
+          null,
+          list.id,
+          `${currentProfile.user_id} sent a request to join ${list.title}`,
+          currentProfile.user_id
+        )
       });
       getListMembers(list.id)
       setAddingMembersToList(false)

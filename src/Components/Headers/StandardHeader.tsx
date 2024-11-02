@@ -72,9 +72,22 @@ const StandardHeader: React.FC<StandardHeaderProps> = (
               <MoreHorizontal height={24} width={24} color={'white'} />
             </TouchableOpacity>
           )}
+          {favorites && (
+            <TouchableOpacity 
+            onPress={() => {favoritesClick()}} 
+            style={tailwind`ml-4`}
+            >
+            <Bookmark 
+              height={24} 
+              width={24} 
+              color={'white'} // Filled heart if liked, outlined if not
+              fill={likeStatus ? 'white' : 'none'} // Outline or filled based on status
+              />
+          </TouchableOpacity>
+          )}
           {notifications && (
             <TouchableOpacity 
-              onPress={() => {navigation.navigate('NotificationsScreen')}} 
+              onPress={() => {navigation.navigate('NotificationScreen')}} 
               style={tailwind`ml-4`}
             >
               <Bell 
@@ -83,19 +96,6 @@ const StandardHeader: React.FC<StandardHeaderProps> = (
                 color={'white'}
               />
             </TouchableOpacity>
-          )}
-          {favorites && (
-            <TouchableOpacity 
-            onPress={() => {favoritesClick()}} 
-            style={tailwind`ml-4`}
-          >
-            <Bookmark 
-              height={24} 
-              width={24} 
-              color={'white'} // Filled heart if liked, outlined if not
-              fill={likeStatus ? 'white' : 'none'} // Outline or filled based on status
-            />
-          </TouchableOpacity>
           )}
           {activeFavorites && (
             <TouchableOpacity 

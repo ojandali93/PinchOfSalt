@@ -9,10 +9,9 @@ interface RecipeDetailsProps {
   calories: string,
   cuisine: string,
   course: string,
-  meal: string
 }
 
-const RecipeSummary: React.FC<RecipeDetailsProps> = ({prepTime, coolTime, servings, calories, cuisine, course, meal}) => {
+const RecipeSummary: React.FC<RecipeDetailsProps> = ({prepTime, coolTime, servings, calories, cuisine, course}) => {
   return (
     <View style={tailwind`mt-5`}>
       <View style={tailwind`w-full flex flex-row justify-between items-center`}>
@@ -48,14 +47,6 @@ const RecipeSummary: React.FC<RecipeDetailsProps> = ({prepTime, coolTime, servin
           ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
               <Text style={tailwind`text-base font-semibold`}>Course:</Text>
               <Text style={tailwind`text-base font-semibold`}>{course}</Text>
-            </View>
-          : null
-      }
-      {
-        meal 
-          ? <View style={tailwind`w-full flex flex-row justify-between items-center`}>
-              <Text style={tailwind`text-base font-semibold`}>Meal:</Text>
-              <Text style={tailwind`text-base font-semibold`}>{meal}</Text>
             </View>
           : null
       }

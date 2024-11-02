@@ -4,7 +4,7 @@ import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase
 import { Alert, Platform } from 'react-native';
 import { useRecipe } from './RecipeContext';
 import { storage } from '../Utils/firebaseConfig';
-import messaging from '@react-native-firebase/messaging'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -29,7 +29,7 @@ interface UserContextType {
     password: string, 
     firstName: string, 
     lastName: string, 
-    profilePic: SingleImageProp, 
+    profilePic: string, 
     bio: string, 
     location: string, 
     experience: string,
@@ -59,6 +59,14 @@ interface UserContextType {
   logoutCurrentUser: (navigation: any) => void
   userBlocked: any[]
   deleteAccount: (profileId: number, navigation: any) => void
+  getUserFollowingNoRecipe: (user_id: string) => void,
+  userFollowingNoReipce: any[]
+  userActivity: any[],
+  getUserActivity: (user_id: string) => void
+  userFriendRequests: any[],
+  getUserFriendsPending: (user_id: string) => void
+  userListRequests: any[]
+  getUserListPending: (user_id: string) => void
 }
 
 interface SingleImageProp {
@@ -89,9 +97,39 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const [selectedUserFollowing, setSelectedUserFollowing] = useState<any[]>([])
   const [selectedUserFollowers, setSelectedUserFollowers] = useState<any[]>([])
+  
+  const [userFollowingNoReipce, setUserFollowingNoRecipe] = useState<any[]>([])
 
   const [userFavorites, setUserFavorites] = useState<any[]>([])
   const [userBlocked, setUserBlocked] = useState<any[]>([])
+
+  const [userActivity, setUserActivity] = useState<any[]>([])
+  const [userFriendRequests, setUserFriendRequests] = useState<any[]>([])
+  const [userListRequests, setUserListRequests] = useState<any[]>([])
+
+  useEffect(() => {
+    // Fetch user data from AsyncStorage on component mount
+    AsyncStorage.getItem('currentUser').then((user) => {
+      if (user) setCurrentUser(JSON.parse(user));
+    });
+    AsyncStorage.getItem('currentProfile').then((profile) => {
+      console.log('async profile: ', profile)
+      if (profile){
+        let parsedData = JSON.parse(profile)
+        setCurrentProfile(parsedData);
+        grabUserRecipes(parsedData.user_id)
+        getUserLists(parsedData.user_id)
+        getUserFollowing(parsedData.user_id)
+        getUserFollowers(parsedData.user_id)
+        grabUserFavorites(parsedData.user_id)
+        getUserBlocked(parsedData.user_id)
+        getUserFollowingNoRecipe(parsedData.user_id)
+        getUserActivity(parsedData.user_id)
+        getUserFriendsPending(parsedData.user_id)
+        getUserListPending(parsedData.user_id)
+      } 
+    });
+  }, []);
 
   const createUserAccount = async (
     username: string, 
@@ -99,7 +137,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     password: string, 
     firstName: string, 
     lastName: string, 
-    profilePic: SingleImageProp, 
+    profilePic: string, 
     bio: string, 
     location: string, 
     experience: string,
@@ -121,47 +159,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         return;
       }
       console.log(profilePic)
-      uploadImageToFirebase(username, email, firstName, lastName, profilePic, bio, location, experience, navigation, data.user)
+      createUsersProfile(username, email, firstName, lastName, profilePic, bio, location, experience, navigation, data.user)
     } catch (error) {
       console.error('there was an error creating the users account: ', error)
     }
   }
-
-  const uploadImageToFirebase = async (
-    username: string, 
-    email: string, 
-    firstName: string, 
-    lastName: string, 
-    profilePic: SingleImageProp, 
-    bio: string, 
-    location: string, 
-    experience: string,
-    navigation: any,
-    user: any
-  ) => {
-    if (!profilePic) {
-      console.log('no profile picture');
-      createUsersProfile(username, email, firstName, lastName, '', bio, location, experience, navigation, user.id);
-      return;
-    }
-  
-    try {
-      const folderName = 'ProfilePictures'; 
-      const response = await fetch(profilePic.uri);
-      const blob = await response.blob(); 
-      const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
-  
-      const storageRef = ref(storage, fileKey);
-      const snapshot = await uploadBytesResumable(storageRef, blob);
-    
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log('image downloadable url: ', downloadURL);
-      createUsersProfile(username, email, firstName, lastName, downloadURL, bio, location, experience, navigation, user.id);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
-  };
-  
 
   const createUsersProfile = async (
     username: string, 
@@ -180,7 +182,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         .from('Profiles')
         .insert([
           {
-            user_id: user,  // Make sure this maps to user_id in the DB
+            user_id: user.id,  // Make sure this maps to user_id in the DB
             username: username.toLowerCase(),
             email: email,
             bio: bio,
@@ -247,14 +249,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const loginUser = async (username: string, password: string, navigation: any, screen: string) => {
     setLoggingIn(true)
-    getFCMToken()
     try {
       const { data, error } = await supabase
         .from('Profiles')
         .select('*')
         .eq('username', username); // Filter where username matches loginUsername
       if (error) {
-        // console.error('Error fetching profile:', error.message);
         Alert.alert('Invaid Username', 'Userame does not match any records')
       } else {
         if(data.length === 0){
@@ -293,21 +293,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  const getFCMToken = async () => {
-    try {
-      const authorizationStatus = await messaging().requestPermission();
-      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED) {
-        console.log('User has notification permissions enabled.');
-      } else if (authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
-        console.log('User has provisional notification permissions.');
-      } else {
-        console.log('User has notification permissions disabled');
-      }
-    } catch (err) {
-      console.log('major error:', err);
-    }
-  };
-
   const logoutCurrentUser = async (navigation: any) => {
     console.log('logout user')
     try {
@@ -317,8 +302,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         return false;
       }
       setCurrentProfile(null)
-      navigation.navigate('ProfileScreen')
-      console.log('Successfully logged out');
+      AsyncStorage.removeItem('currentUser');
+      AsyncStorage.removeItem('currentProfile');
+      navigation.navigate('FeedScreen')
       return true;
     } catch (err) {
       console.error('Unexpected error logging out:', err);
@@ -343,24 +329,181 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       getUserFollowers(data[0].user_id)
       grabUserFavorites(data[0].user_id)
       getUserBlocked(data[0].user_id)
+      getUserFollowingNoRecipe(data[0].user_id)
+      getUserActivity(data[0].user_id)
+      getUserFriendsPending(data[0].user_id)
+      getUserListPending(data[0].user_id)
       setLoggingIn(false)
+      AsyncStorage.setItem('currentUser', JSON.stringify(user));
+      AsyncStorage.setItem('currentProfile', JSON.stringify(data[0]));~
       navigation.navigate(screen)
     } catch (err) {
       console.error('An error occurred while checking the username:', err);
     }
   }
 
+  const getUserFriendsPending = async (user_id: string) => {
+    try {
+      // Fetch all records where 'following' matches the user_id
+      const { data: relationsData, error } = await supabase
+        .from('Relations')
+        .select('*')
+        .eq('status', 'pending')
+        .eq('following', user_id);
+  
+      if (error) {
+        console.error("Error fetching pending user friends:", error);
+        return;
+      }
+
+      console.log('friend requests: ', relationsData)
+  
+      if (relationsData) {
+        // For each relation record, fetch the follower profile
+        const enhancedData = await Promise.all(
+          relationsData.map(async (relation) => {
+            const { data: profileData, error: profileError } = await supabase
+              .from('Profiles')
+              .select('*')
+              .eq('user_id', relation.follower) // Fetch the profile where user_id matches the follower ID
+              .single(); // Use .single() to get a single profile record
+  
+            if (profileError) {
+              console.error(`Error fetching profile for follower ${relation.follower}:`, profileError);
+            }
+  
+            // Add the profile data to the relation record
+            return {
+              ...relation,
+              followerProfile: profileData || null, // Add profile data or null if not found
+            };
+          })
+        );
+  
+        // Set the processed data to state or use it as needed
+        console.log('all friend requests: ', enhancedData)
+        setUserFriendRequests(enhancedData);
+      }
+    } catch (error) {
+      console.log('Error getting all friend requests:', error);
+    }
+  };
+  
+  const getUserListPending = async (user_id: string) => {
+    try {
+      // Step 1: Fetch all 'pending' members by user_id
+      const { data: memberData, error } = await supabase
+        .from('Members')
+        .select('*')
+        .eq('status', 'pending')
+        .eq('member_id', user_id);
+  
+      if (error) {
+        console.error("Error fetching pending user friends:", error);
+        return;
+      }
+  
+      if (memberData) {
+        // Step 2: For each member, fetch the corresponding collection and profile
+        const enhancedData = await Promise.all(
+          memberData.map(async (member) => {
+            // Fetch collection data based on collection_id
+            const { data: collectionData, error: collectionError } = await supabase
+              .from('Collections')
+              .select('*')
+              .eq('id', member.collection_id)
+              .single();
+  
+            if (collectionError) {
+              console.error(`Error fetching collection for collection_id ${member.collection_id}:`, collectionError);
+              return { ...member, collection: null, profile: null };
+            }
+  
+            // Fetch profile data based on collection's user_id
+            const { data: profileData, error: profileError } = await supabase
+              .from('Profiles')
+              .select('*')
+              .eq('user_id', collectionData.user_id)
+              .single();
+  
+            if (profileError) {
+              console.error(`Error fetching profile for user_id ${collectionData.user_id}:`, profileError);
+            }
+  
+            // Step 3: Add the collection and profile data to the member object
+            return {
+              ...member,
+              collection: collectionData || null,
+              profile: profileData || null, // Attach profile data or null if not found
+            };
+          })
+        );
+  
+        // Step 4: Set the processed data to state or use it as needed
+        console.log('All list requests with profile data:', enhancedData);
+        setUserListRequests(enhancedData);
+      }
+    } catch (error) {
+      console.log('Error getting all friend requests:', error);
+    }
+  };
+  
+
   const getUserLists = async (user_id: string) => {
     try {
+      // Step 1: Fetch all Member records where member_id is the current user's user_id
+      const { data: membersData, error: membersError } = await supabase
+        .from('Members')
+        .select('*')
+        .eq('member_id', user_id)
+        .in('status', ['member', 'owner']);  
+  
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+        return;
+      }
+  
+      // Step 2: For each member, fetch the corresponding collection based on collection_id
+      const enhancedData = await Promise.all(
+        membersData.map(async (member) => {
+          const { data: collectionData, error: collectionError } = await supabase
+            .from('Collections')
+            .select('*')
+            .eq('id', member.collection_id)
+            .single(); // Use .single() to fetch a single collection record
+  
+          if (collectionError) {
+            console.error(`Error fetching collection for collection_id ${member.collection_id}:`, collectionError);
+          }
+  
+          // Step 3: Return member data with associated collection data
+          return {
+            ...member,
+            collection: collectionData || null, // Attach collection data or null if not found
+          };
+        })
+      );
+  
+      // Step 4: Set the processed data to state or use it as needed
+      console.log('User lists with associated collections:', JSON.stringify(enhancedData));
+      setUserLists(enhancedData);
+    } catch (err) {
+      console.error('An error occurred while fetching user lists and collections:', err);
+    }
+  };
+  
+
+  const getUserActivity = async (user_id: string) => {
+    try {
       const { data: collectionsData, error: collectionsError } = await supabase
-        .from('Collections')
+        .from('Activity')
         .select('*')
         .eq('user_id', user_id); 
       if (collectionsError) {
         console.error('Error fetching collections:', collectionsError);
         return;
       }
-      setUserLists(collectionsData);
+      setUserActivity(collectionsData);
     } catch (err) {
       console.error('An error occurred while fetching user lists and recipes:', err);
     }
@@ -394,7 +537,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         .select(`
           *
         `)
-        .eq('follower', user_id);
+        .eq('follower', user_id)
+        .eq('status', 'follow');
   
       if (followingError) {
         console.error('Error fetching followed profiles:', followingError);
@@ -419,13 +563,34 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           .in('user_id', following_ids); 
 
         if (error) {
-          console.error('Error fetching recipes:', error);
+          console.error('Error fetching recipes of following:', error);
           return;
         }
         setUserFollowing(recipesData);
       } catch(errors) {
         console.error('An error occured when checking recipes for user_ids:', err);
       }
+    } catch (err) {
+      console.error('An error occurred while fetching user lists and recipes:', err);
+    }
+  };
+
+  const getUserFollowingNoRecipe = async (user_id: string) => {
+    console.log('getting users following based on id: ', user_id)
+    try {
+      const { data: followingData, error: followingError } = await supabase
+        .from('Relations')
+        .select(`
+          *
+        `)
+        .eq('follower', user_id);
+  
+      if (followingError) {
+        console.error('Error fetching followed profiles:', followingError);
+        return;
+      }
+      console.log('logged in users following: ', followingData)
+      setUserFollowingNoRecipe(followingData)
     } catch (err) {
       console.error('An error occurred while fetching user lists and recipes:', err);
     }
@@ -645,7 +810,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         removeFromFavorite,
         logoutCurrentUser,
         userBlocked,
-        deleteAccount
+        deleteAccount,
+        getUserFollowingNoRecipe,
+        userFollowingNoReipce,
+        userActivity,
+        getUserActivity,
+        userFriendRequests,
+        getUserFriendsPending,
+        getUserListPending,
+        userListRequests
       }}
     >
       {children}

@@ -56,7 +56,7 @@ const SearchScreen = () => {
         .ilike('title', `%${searchTerm}%`); // Search by title using the search term
   
       if (recipesError) {
-        console.error('Error fetching recipes:', recipesError);
+        console.error('Error fetching recipes in search screen:', recipesError);
         return;
       }
   

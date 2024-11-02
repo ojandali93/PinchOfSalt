@@ -5,6 +5,7 @@ import tailwind from 'twrnc'
 import { useNavigation } from '@react-navigation/native'
 import { useUser } from '../../Context/UserContext'
 import supabase from '../../Utils/supabase';
+import { useApp } from '../../Context/AppContext';
 
 const imageWidth = Dimensions.get('screen').width
 const imageHeight = imageWidth - 86
@@ -17,6 +18,7 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
   const navigation = useNavigation()
 
   const { userFavorites, addToFavorite, removeFromFavorite, currentProfile } = useUser()
+  const { createNotification } = useApp()
 
   const [showOptions, setShowOptions] = useState<boolean>(false)
   const [showReason, setShowReason] = useState<boolean>(false)
@@ -187,6 +189,17 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
         console.error('Error adding like:', error)
         return
       }
+      console.log('like data: ', data)
+      createNotification(
+        recipe.user_profile.user_id, 
+        data[0].id,
+        null,
+        recipe.id,
+        null,
+        null,
+        `${currentProfile.username} liked your recipe - ${recipe.title}`,
+        currentProfile.user_id
+      )
       grabRecipeLikes()
     } catch (error) {
       console.error('Error creating like:', error)

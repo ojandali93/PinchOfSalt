@@ -10,6 +10,7 @@ import ProfileScreen from '../Screens/Profile/ProfileScreen';
 import SelectedProfileScreen from '../Screens/Profile/SelectedProfileScreen';
 import AddRecipeToList from '../Screens/Recipes/AddRecipeToList';
 import FavoritesScreen from '../Screens/Feed/FavoritesScreen';
+import NotificationScreen from '../Screens/Feed/NotificationScreen';
 
 export type FeedStackParamList = {
   FeedScreen: undefined;
@@ -21,6 +22,7 @@ export type FeedStackParamList = {
   SelectedProfileScreen: {user_id: string};
   AddRecipeToList: {recipe_id: number};
   FavoritesScreen: undefined;
+  NotificationScreen: undefined
 };
 
 const StackNav = createStackNavigator<FeedStackParamList>();
@@ -39,6 +41,7 @@ const FeedStackNavigation = () => {
         <StackNav.Screen name="ProfileSetupScreen" component={ProfileSetupScreen} />
         <StackNav.Screen name="SelectedProfileScreen" component={SelectedProfileScreen} />
         <StackNav.Screen name="FavoritesScreen" component={FavoritesScreen} />
+        <StackNav.Screen name="NotificationScreen" component={NotificationScreen} />
     </StackNav.Navigator>
   );
 };

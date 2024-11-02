@@ -167,12 +167,12 @@ const ProfileScreen = () => {
                             onPress={() => navigation.navigate('SingleListScreenProfile', { list })}
                           >
                             <Image
-                              source={{ uri: list.main_image }}
+                              source={{ uri: list.collection.main_image }}
                               style={tailwind`w-32 h-32 rounded-lg`}
                             />
                             <View style={tailwind`flex-1 ml-3`}>
-                              <Text style={tailwind`text-xl font-bold my-2`}>{list.title}</Text>
-                              <Text style={tailwind`text-base`}>{limitStringLength(list.description, 90)}</Text>
+                              <Text style={tailwind`text-xl font-bold my-2`}>{list.collection.title}</Text>
+                              <Text style={tailwind`text-base`}>{limitStringLength(list.collection.description, 90)}</Text>
                             </View>
                           </TouchableOpacity>
                         ))
@@ -188,7 +188,7 @@ const ProfileScreen = () => {
                                 onPress={() => navigation.navigate('SelectedProfileScreen', {user_id: list.Profiles.user_id})}
                               >
                                 <Image
-                                  source={{ uri: list.Profiles.main_image }}
+                                  source={{ uri: list.Profiles.profile_picture }}
                                   style={tailwind`w-14 h-14 rounded-full`}
                                 />
                                 <View style={tailwind`flex-1 ml-3`}>
@@ -209,12 +209,12 @@ const ProfileScreen = () => {
                                     onPress={() => navigation.navigate('SelectedProfileScreen', {user_id: list.Profiles.user_id})}
                                   >
                                     <Image
-                                      source={{ uri: list.Profiles.profile_picture }}
+                                      source={{ uri: list.user_profile.profile_picture }}
                                       style={tailwind`w-14 h-14 rounded-full`}
                                     />
                                     <View style={tailwind`flex-1 ml-3`}>
-                                      <Text style={tailwind`text-base font-bold`}>{list.Profiles.username}</Text>
-                                      <Text style={tailwind`text-base`}>{list.Profiles.account_name}</Text>
+                                      <Text style={tailwind`text-base font-bold`}>{list.user_profile.username}</Text>
+                                      <Text style={tailwind`text-base`}>{list.user_profile.account_name}</Text>
                                     </View>
                                   </TouchableOpacity>
                                 ))

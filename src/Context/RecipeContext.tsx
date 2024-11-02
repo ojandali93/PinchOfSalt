@@ -48,7 +48,7 @@ export const RecipeProvider: React.FC<RecipeProviderProps> = ({ children }) => {
         `)
         .eq('user_id', user_id);
       if (recipesError) {
-        console.error('Error fetching recipes:', recipesError);
+        console.error('Error fetching recipes for user:', recipesError);
         return;
       }
       
@@ -74,7 +74,7 @@ export const RecipeProvider: React.FC<RecipeProviderProps> = ({ children }) => {
         `)
         .eq('user_id', user_id);
       if (recipesError) {
-        console.error('Error fetching recipes:', recipesError);
+        console.error('Error fetching recipes for selected:', recipesError);
         return;
       }
       setSelectedUserRecipes(recipesData);

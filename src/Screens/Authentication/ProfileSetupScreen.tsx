@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Image, Alert } from 'react-native';
+import { Text, View, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Image, Alert, Switch } from 'react-native';
 import tailwind from 'twrnc';
 import TopLogin from '../../Components/Authentication/TopLogin';
 import AuthInput from '../../Components/Inputs/Authentication/AuthInput';
@@ -28,6 +28,7 @@ const ProfileSetupScreen = () => {
   const [location, setLocation] = useState<string>('')
   const [profilePicture, setProfilePicture] = useState<any>(null)
   const [experience, setExperience] = useState<string>('')
+  const [isPublic, setIsPublic] = useState<boolean>(false)
 
   const cookingSkillLevels = [
     {
@@ -64,8 +65,21 @@ const ProfileSetupScreen = () => {
     }
   ];
 
-  const submitUserLogin = () => {
-    createUserAccount(username, email, password, firstName, lastName, profilePicture, bio, location, experience, navigation)
+  const submitUserLogin = async () => {
+    const folderName = 'ProfilePictures'; 
+    const response = await fetch(profilePicture.uri);
+    const blob = await response.blob(); 
+    const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
+
+    const storageRef = ref(storage, fileKey);
+    const snapshot = await uploadBytesResumable(storageRef, blob);
+  
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    if(downloadURL){
+      createUserAccount(username, email, password, firstName, lastName, downloadURL, bio, location, experience, navigation)
+    } else {
+      createUserAccount(username, email, password, firstName, lastName, '', bio, location, experience, navigation)
+    }
   }
 
   const selectAnImage = () => {
@@ -88,18 +102,6 @@ const ProfileSetupScreen = () => {
       }
     });
   };
-
-  const uploadImage = async () => {
-    const folderName = 'ProfilePictures'; 
-    const response = await fetch(profilePicture.uri);
-    const blob = await response.blob(); 
-    const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
-
-    const storageRef = ref(storage, fileKey);
-    const snapshot = await uploadBytesResumable(storageRef, blob);
-  
-    const downloadURL = await getDownloadURL(snapshot.ref);
-  }
 
   return (
     <KeyboardAvoidingView
@@ -156,11 +158,21 @@ const ProfileSetupScreen = () => {
               loading={false}
             />
           </View>
-
+          
           <View style={tailwind`mt-4`}>
             <ScrollSelect value={experience} selection={setExperience} items={cookingSkillLevels} title='Experience Cooking'/>
           </View>
 
+          <View style={tailwind`w-full flex flex-row items-center justify-between mt-3`}>
+            <Text style={tailwind`text-base`}>Public:</Text>
+            <Switch
+              trackColor={{ false: "#b5b5b5", true: "#c72828" }}
+              thumbColor={isPublic ? "white" : "white"}
+              onValueChange={() => setIsPublic(!isPublic)}
+              value={isPublic}
+              style={{ transform: [{ scaleX: 0.9 }, { scaleY: 0.9 }] }}  // Scaling the switch down to half size
+            />
+          </View>
 
           {/* Login Button */}
           <View style={tailwind`mt-4`}>

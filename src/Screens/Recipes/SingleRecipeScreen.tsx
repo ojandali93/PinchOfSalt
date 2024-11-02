@@ -2,7 +2,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState, useRef, useEffect } from 'react';
 import { ScrollView, Text, TextInput, View, KeyboardAvoidingView, TouchableOpacity, Alert, Image, Modal, Dimensions } from 'react-native';
 import { FeedStackParamList } from '../../Navigation/FeedStackNavigation';
-import tailwind from 'twrnc';
+import tailwind, { create } from 'twrnc';
 import StandardHeader from '../../Components/Headers/StandardHeader';
 import DisplayImageRecipe from '../../Components/ImagesAndVideo/DisplayImageRecipe';
 import RecipeDetails from '../../Components/Info/RecipeDetails';
@@ -17,6 +17,7 @@ import { ChevronsUp, Minimize } from 'react-native-feather';
 import supabase from '../../Utils/supabase';
 import { useUser } from '../../Context/UserContext';
 import Video from 'react-native-video';
+import { useApp } from '../../Context/AppContext';
 
 type SingleRecipeRouteProp = RouteProp<FeedStackParamList, 'SingleRecipeScreen'>;
 
@@ -25,7 +26,9 @@ const SingleRecipeScreen: React.FC = () => {
   const { recipe } = route.params;
   const navigation = useNavigation();
   const { currentProfile } = useUser();
+  const { createNotification } = useApp()
 
+  console.log('recipe video: ', recipe['Cuisine'])
 
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comment, setComment] = useState<string>('');
@@ -126,6 +129,16 @@ const SingleRecipeScreen: React.FC = () => {
       if (error) {
         console.error('Error adding like:', error);
       } else {
+        createNotification(
+          recipe.user_profile.user_id, 
+          null,
+          null,
+          recipe.id,
+          null,
+          null,
+          `${recipe.title} was added to favorites`,
+          currentProfile.user_id
+        )
         getFavorites(); // Refresh likes after adding
       }
     } catch (error) {
@@ -156,10 +169,21 @@ const SingleRecipeScreen: React.FC = () => {
             recipe_id: recipe.id,
             user_id: currentProfile.user_id,
           },
-        ]);
+        ])
+        .select();
       if (error) {
         console.error('Error adding like:', error);
       } else {
+        createNotification(
+          recipe.user_profile.user_id, 
+          data[0].id,
+          null,
+          recipe.id,
+          null,
+          null,
+          `${currentProfile.username} liked your recipe - ${recipe.title}`,
+          currentProfile.user_id
+        )
         getLikes(); // Refresh likes after adding
       }
     } catch (error) {
@@ -304,6 +328,17 @@ const SingleRecipeScreen: React.FC = () => {
         if (error) {
           console.error('Error inserting recipe:', error);
         } else {
+          createNotification(
+            recipe.user_profile.user_id,
+            null,
+            data[0].id,
+            recipe.id,
+            null,
+            null,
+            `${currentProfile.username} added a comment on ${recipe.title} - ${comment}`,
+            currentProfile.user_id
+          )
+          setComment('')
           getComments();
         }
       } catch (error) {
@@ -333,10 +368,9 @@ const SingleRecipeScreen: React.FC = () => {
           prepTime={recipe.prep_time}
           coolTime={recipe.cook_time}
           servings={recipe.Nutrition[0].serving_size ? recipe.Nutrition[0].serving_size : 'N/A'}
-          calories={recipe.Nutrition[0].calories ? recipe.Nutrition[0].serving_size :  'N/A'}
-          course={recipe.Categories[0].course ? recipe.Nutrition[0].serving_size :  'N/A'}
-          cuisine={recipe.Categories[0].cuisine ? recipe.Nutrition[0].serving_size :  'N/A'}
-          meal={recipe.Categories[0].meal  ? recipe.Nutrition[0].serving_size :  'N/A'}
+          calories={recipe.Nutrition[0].calories ? recipe.Nutrition[0].calories :  'N/A'}
+          course={recipe.Categories[0].category ? recipe.Categories[0].category :  'N/A'}
+          cuisine={recipe.Cuisine[0].cuisine ? recipe.Cuisine[0].cuisine :  'N/A'}
         />
         {recipe.main_video != null  ? <DisplayVideoRecipe video={recipe.main_video}  maximize={() => {setMaximizeVideo(true)}}/> : null}
         <IngredientsDetails instructions={recipe.Ingredients} />
@@ -351,14 +385,14 @@ const SingleRecipeScreen: React.FC = () => {
         />
         <NutritionDetails
           serving_size={recipe.Nutrition[0].serving_size ? recipe.Nutrition[0].serving_size :  null}
-          calories={recipe.Nutrition[0].calories ? recipe.Nutrition[0].serving_size : null}
-          total_fats={recipe.Nutrition[0].total_fats ? recipe.Nutrition[0].serving_size : null}
-          saturated_fats={recipe.Nutrition[0].saturated_fats ? recipe.Nutrition[0].serving_size : null}
-          trans_fats={recipe.Nutrition[0].trans_fats ? recipe.Nutrition[0].serving_size : null}
-          sodium={recipe.Nutrition[0].sodium ? recipe.Nutrition[0].serving_size : null}
-          total_carbs={recipe.Nutrition[0].total_carbs ? recipe.Nutrition[0].serving_size : null}
-          total_sugar={recipe.Nutrition[0].total_sugar ? recipe.Nutrition[0].serving_size : null}
-          protein={recipe.Nutrition[0].protein ? recipe.Nutrition[0].serving_size : null}
+          calories={recipe.Nutrition[0].calories ? recipe.Nutrition[0].calories : null}
+          total_fats={recipe.Nutrition[0].total_fats ? recipe.Nutrition[0].total_fats : null}
+          saturated_fats={recipe.Nutrition[0].saturated_fats ? recipe.Nutrition[0].saturated_fats : null}
+          trans_fats={recipe.Nutrition[0].trans_fats ? recipe.Nutrition[0].trans_fats : null}
+          sodium={recipe.Nutrition[0].sodium ? recipe.Nutrition[0].sodium : null}
+          total_carbs={recipe.Nutrition[0].total_carbs ? recipe.Nutrition[0].total_carbs : null}
+          total_sugar={recipe.Nutrition[0].total_sugar ? recipe.Nutrition[0].total_sugar : null}
+          protein={recipe.Nutrition[0].protein ? recipe.Nutrition[0].protein : null}
         />
         <AuthorDetails profile={recipe.user_profile} />
         <View style={tailwind`w-full h-.5 rounded-full bg-black mt-4`}></View>

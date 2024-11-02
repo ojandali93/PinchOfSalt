@@ -25,7 +25,6 @@ target 'PinchofSalt' do
   $RNFirebaseAnalyticsWithoutAdIdSupport = true
 
   pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
-  pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
 
   use_react_native!(
     :path => config[:reactNativePath],

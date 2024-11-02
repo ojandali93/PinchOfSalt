@@ -21,7 +21,7 @@ const SelectedProfileScreen = () => {
   const { user_id } = route.params; 
 
   const { grabSelectedUserRecipes, selectedUserRecipes } = useRecipe();
-  const { selectedUserLists, getSelectedUserLists, userFollowing, currentProfile, getUserFollowing,
+  const { selectedUserLists, getSelectedUserLists, userFollowingNoReipce, currentProfile, getUserFollowingNoRecipe,
     getSelectedUserFollowers, getSelectedUserFollowing, selectedUserFollowers, selectedUserFollowing } = useUser()
   const navigation = useNavigation();
 
@@ -90,7 +90,7 @@ const SelectedProfileScreen = () => {
 
   const blockUser = async () => {
     try {
-      const existingRelation = userFollowing.find(
+      const existingRelation = userFollowingNoReipce.find(
         (relation) => relation.following === selectedProfile.user_id
       );
       if (existingRelation) {
@@ -120,7 +120,7 @@ const SelectedProfileScreen = () => {
         }
         Alert.alert('Blocked', 'This user has been blocked successfully.');
       } -
-      getUserFollowing(currentProfile.user_id)
+      getUserFollowingNoRecipe(currentProfile.user_id)
     } catch (err) {
       console.error('Error blocking user:', err);
     } finally {
@@ -146,7 +146,7 @@ const SelectedProfileScreen = () => {
               <ScrollView style={tailwind`flex-1 bg-white p-4`}>
                 <NameAndImageProfileRelations 
                   profile={selectedProfile} 
-                  following={userFollowing}
+                  following={userFollowingNoReipce}
                 />
                 <Bio bio={selectedProfile.bio} />
                 <Summary 

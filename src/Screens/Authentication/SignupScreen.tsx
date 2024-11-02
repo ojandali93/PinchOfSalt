@@ -30,17 +30,28 @@ const SignupScreen = () => {
   const navigation = useNavigation()
 
   const submitUserLogin = () => {
-    validUsername && validPassword && validPasswordAndVerify && username.length > 0
-      ? navigation.navigate('ProfileSetupScreen', {
-                                                    username, 
-                                                    firstName, 
-                                                    lastName,
-                                                    email,
-                                                    password,
-                                                    name: `${firstName} ${lastName}`,
-                                                  })
-      : Alert.alert('Invalid Information', 'There are some fields that are not valid. Correct and resubmit.')
-  }
+    if (validUsername && validPassword && validPasswordAndVerify && username.length > 0) {
+      // Reset all input fields to empty strings
+      setUsername('');
+      setPassword('');
+      setVerifyPassword('');
+      setEmail('');
+      setFirstName('');
+      setLastName('');
+  
+      // Navigate to ProfileSetupScreen with parameters
+      navigation.navigate('ProfileSetupScreen', {
+        username, 
+        firstName, 
+        lastName,
+        email,
+        password,
+        name: `${firstName} ${lastName}`,
+      });
+    } else {
+      Alert.alert('Invalid Information', 'There are some fields that are not valid. Correct and resubmit.');
+    }
+  };
 
   const validateUsername = (data: string) => {
     setUsername(data)

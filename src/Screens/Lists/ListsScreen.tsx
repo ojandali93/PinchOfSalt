@@ -26,6 +26,8 @@ const ListsScreen = () => {
   const [password, setPassword] = useState<string>('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
+  console.log('user lists: ', JSON.stringify(userLists))
+
 
   const submitUserLoginFeed = () => {
     loginUser(username, password, navigation, 'ListScreen');
@@ -81,6 +83,7 @@ const ListsScreen = () => {
             data={userLists}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => {
+              console.log('this is a list: ', item)
               return (
                 <View key={item.id} style={tailwind`p-2`}>
                   <CollectionTile list={item}/>
