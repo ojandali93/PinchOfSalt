@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import tailwind from 'twrnc';
 import supabase from '../../Utils/supabase';
 import StandardHeader from '../../Components/Headers/StandardHeader';
 import SearchHeader from '../../Components/Headers/SearchHeader';
 import { useNavigation } from '@react-navigation/native';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 const screenWidth = Dimensions.get('window').width;
 const smallImageSize = screenWidth / 3 - 10; // 1x1 size
@@ -18,6 +19,7 @@ const ExploreScreen: React.FC = () => {
 
   const [search, setSearch] = useState<string>('')
   const [searchResults, setSearchResults] = useState<any[]>([])
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     grabAllRecipes();
@@ -71,6 +73,13 @@ const ExploreScreen: React.FC = () => {
       console.error('An error occurred while fetching recipes and profiles:', err);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    grabAllRecipes().finally(() => {
+      setRefreshing(false);
+    });
+  }, [recipes]);
 
   const renderRecipeItem = (recipe: any, style: any) => {
     return (
@@ -139,6 +148,9 @@ const ExploreScreen: React.FC = () => {
         data={getRecipeChunks()}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => renderRecipeGrid(item)}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );

@@ -16,8 +16,6 @@ interface RecipeProps {
 const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
   const navigation = useNavigation()
 
-  console.log('single Recipe: ', recipe)
-
   const { userFavorites, addToFavorite, removeFromFavorite, currentProfile } = useUser()
 
   const [showOptions, setShowOptions] = useState<boolean>(false)
@@ -153,15 +151,12 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
   }
 
   const closeOptions = () => {
-    console.log('closing tabs')
     setShowOptions(false)
     setShowReason(false)
     setReportType('')
   }
 
   const reportPost = async (recipe_id: number, category: string) => {
-    console.log('recipe id: ', recipe_id)
-    console.log('category: ', category)
     try {
       const { error: profileError } = await supabase
         .from('Reports')
@@ -188,9 +183,6 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
   }
 
   const reportUser = async (recipe_id: number, user_id: string, category: string) => {
-    console.log('recipe id: ', recipe_id)
-    console.log('user id: ', user_id)
-    console.log('category: ', category)
     try {
       const { error: profileError } = await supabase
         .from('Reports')

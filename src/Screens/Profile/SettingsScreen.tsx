@@ -10,8 +10,6 @@ const SettingsScreen = () => {
   const navigation = useNavigation()
 
   const {currentProfile, logoutCurrentUser, deleteAccount} = useUser()
-  
-  console.log(currentProfile)
 
   const confirmDeleteAccount = () => {
     Alert.alert(

@@ -113,7 +113,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (user) setCurrentUser(JSON.parse(user));
     });
     AsyncStorage.getItem('currentProfile').then((profile) => {
-      console.log('async profile: ', profile)
       if (profile){
         let parsedData = JSON.parse(profile)
         setCurrentProfile(parsedData);
@@ -158,7 +157,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error('Error signing up:', signUpError.message);
         return;
       }
-      console.log(profilePic)
       createUsersProfile(username, email, firstName, lastName, profilePic, bio, location, experience, navigation, data.user)
     } catch (error) {
       console.error('there was an error creating the users account: ', error)
@@ -294,7 +292,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   };
 
   const logoutCurrentUser = async (navigation: any) => {
-    console.log('logout user')
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -355,8 +352,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error("Error fetching pending user friends:", error);
         return;
       }
-
-      console.log('friend requests: ', relationsData)
   
       if (relationsData) {
         // For each relation record, fetch the follower profile
@@ -379,9 +374,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             };
           })
         );
-  
-        // Set the processed data to state or use it as needed
-        console.log('all friend requests: ', enhancedData)
+
         setUserFriendRequests(enhancedData);
       }
     } catch (error) {
@@ -438,9 +431,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             };
           })
         );
-  
-        // Step 4: Set the processed data to state or use it as needed
-        console.log('All list requests with profile data:', enhancedData);
         setUserListRequests(enhancedData);
       }
     } catch (error) {
@@ -483,9 +473,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           };
         })
       );
-  
-      // Step 4: Set the processed data to state or use it as needed
-      console.log('User lists with associated collections:', JSON.stringify(enhancedData));
       setUserLists(enhancedData);
     } catch (err) {
       console.error('An error occurred while fetching user lists and collections:', err);
@@ -523,7 +510,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error('Error fetching collections:', collectionsError);
         return;
       }
-      console.log('all of the blocked users: ', JSON.stringify(collectionsData))
       setUserBlocked(collectionsData);
     } catch (err) {
       console.error('An error occurred while fetching user lists and recipes:', err);
@@ -576,7 +562,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   };
 
   const getUserFollowingNoRecipe = async (user_id: string) => {
-    console.log('getting users following based on id: ', user_id)
     try {
       const { data: followingData, error: followingError } = await supabase
         .from('Relations')
@@ -589,7 +574,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error('Error fetching followed profiles:', followingError);
         return;
       }
-      console.log('logged in users following: ', followingData)
       setUserFollowingNoRecipe(followingData)
     } catch (err) {
       console.error('An error occurred while fetching user lists and recipes:', err);

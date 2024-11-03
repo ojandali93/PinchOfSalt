@@ -4,14 +4,19 @@ import tailwind from 'twrnc';
 import StandardHeader from '../../Components/Headers/StandardHeader';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../../Context/UserContext';
-import { Check, X } from 'react-native-feather';
+import { Activity, Check, X } from 'react-native-feather';
 import supabase from '../../Utils/supabase';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 const NotificationScreen = () => {
   const navigation = useNavigation();
   const { currentProfile, userActivity, getUserActivity, userFriendRequests, getUserFriendsPending, userListRequests, getUserListPending } = useUser();
 
   const [viewOptions, setViewOptions] = useState<string>('Activity')
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshingFriends, setRefreshingFriends] = useState(false);
+  const [refreshingLists, setRefreshingLists] = useState(false);
+
 
   const deleteFriendRequest = async (friend_id: number) => {
     try {
@@ -23,8 +28,6 @@ const NotificationScreen = () => {
       if(error){
         console.log('There is an error while deleting this request: ', error)
       }
-
-      console.log('Record was deleted')
       getUserFriendsPending(currentProfile.user_id)
     } catch(error) {
       console.log('There was an error deleting a request: ', error)
@@ -44,8 +47,6 @@ const NotificationScreen = () => {
       if(error){
         console.log('There is an error while deleting this request: ', error)
       }
-
-      console.log('Record was deleted')
       getUserFriendsPending(currentProfile.user_id)
     } catch(error) {
       console.log('There was an error deleting a request: ', error)
@@ -62,8 +63,6 @@ const NotificationScreen = () => {
       if(error){
         console.log('There is an error while deleting this list request: ', error)
       }
-
-      console.log('Record was deleted')
       getUserListPending(currentProfile.user_id)
     } catch(error) {
       console.log('There was an error deleting a list request: ', error)
@@ -82,13 +81,32 @@ const NotificationScreen = () => {
       if(error){
         console.log('There is an error while deleting this list request: ', error)
       }
-
-      console.log('Record was deleted')
       getUserListPending(currentProfile.user_id)
     } catch(error) {
       console.log('There was an error deleting a list request: ', error)
     }
   }
+
+  const onRefreshActivity = useCallback(() => {
+    setRefreshing(true);
+    getUserActivity(currentProfile.user_id).finally(() => {
+      setRefreshing(false);
+    });
+  }, [userActivity]);
+
+  const onRefreshFriends = useCallback(() => {
+    setRefreshingFriends(true);
+    getUserFriendsPending(currentProfile.user_id).finally(() => {
+      setRefreshingFriends(false);
+    });
+  }, [userFriendRequests]);
+
+  const onRefreshLists = useCallback(() => {
+    setRefreshingLists(true);
+    getUserListPending(currentProfile.user_id).finally(() => {
+      setRefreshingLists(false);
+    });
+  }, [userListRequests]);
   
   return (
     <View style={tailwind`flex-1 bg-white`}>
@@ -111,7 +129,6 @@ const NotificationScreen = () => {
                 data={userActivity}
                 keyExtractor={(item) => item.id}
                 renderItem={(item) => {
-                  console.log('item: ', item)
                   return(
                     <View style={tailwind`w-full`}>
                       <View style={tailwind`px-2 pb-1`}>
@@ -125,6 +142,9 @@ const NotificationScreen = () => {
                     </View>
                   )
                 }}
+                refreshControl={
+                  <RefreshControl refreshing={refreshing} onRefresh={onRefreshActivity} />
+                }
               />
             : <View style={tailwind`flex-1`}>
                 <View style={tailwind`px-2 mb-2 flex-1`}>
@@ -155,6 +175,9 @@ const NotificationScreen = () => {
                           </View>
                         )
                       }}
+                      refreshControl={
+                        <RefreshControl refreshing={refreshingFriends} onRefresh={onRefreshFriends} />
+                      }
                     />
                   </View>
                 </View>
@@ -186,6 +209,9 @@ const NotificationScreen = () => {
                           </View>
                         )
                       }}
+                      refreshControl={
+                        <RefreshControl refreshing={refreshingLists} onRefresh={onRefreshLists} />
+                      }
                     />
                   </View>
                 </View>

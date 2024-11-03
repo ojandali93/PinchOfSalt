@@ -44,8 +44,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     activity: string,
     created_by: string
   ) => {
-    console.log('Checking for existing activity');
-    console.log('like id: ', typeof like_id);
   
     try {
       // Build the query dynamically to handle nullable fields
@@ -68,7 +66,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
   
       if (existingActivity) {
-        console.log('Activity already exists, skipping creation');
         return; // Exit if the activity already exists
       }
   
@@ -91,7 +88,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (error) {
         console.log('Error adding activity: ', error);
       } else {
-        console.log('New activity created: ', data);
       }
     } catch (error) {
       console.log('Unexpected error creating activity: ', error);

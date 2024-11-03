@@ -98,15 +98,12 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
   }
 
   const closeOptions = () => {
-    console.log('closing tabs')
     setShowOptions(false)
     setShowReason(false)
     setReportType('')
   }
 
   const reportPost = async (recipe_id: number, category: string) => {
-    console.log('recipe id: ', recipe_id)
-    console.log('category: ', category)
     try {
       const { error: profileError } = await supabase
         .from('Reports')
@@ -133,9 +130,6 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
   }
 
   const reportUser = async (recipe_id: number, user_id: string, category: string) => {
-    console.log('recipe id: ', recipe_id)
-    console.log('user id: ', user_id)
-    console.log('category: ', category)
     try {
       const { error: profileError } = await supabase
         .from('Reports')
@@ -189,7 +183,6 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
         console.error('Error adding like:', error)
         return
       }
-      console.log('like data: ', data)
       createNotification(
         recipe.user_profile.user_id, 
         data[0].id,

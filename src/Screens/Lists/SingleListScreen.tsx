@@ -96,8 +96,6 @@ const SingleListScreen = () => {
   
       if (activityError) {
         console.error('Error creating activity records:', activityError);
-      } else {
-        console.log('Activity records created for list members:', activityData);
       }
       setSelectedRecipes([])
       getListRecipes(list.id)

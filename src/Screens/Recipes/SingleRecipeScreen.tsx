@@ -28,8 +28,6 @@ const SingleRecipeScreen: React.FC = () => {
   const { currentProfile } = useUser();
   const { createNotification } = useApp()
 
-  console.log('recipe video: ', recipe['Cuisine'])
-
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comment, setComment] = useState<string>('');
   const [allComments, setAllComments] = useState<any[]>([]);
