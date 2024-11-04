@@ -165,20 +165,26 @@ const FeedScreen = () => {
           favoritesClick={() => {navigation.navigate('FavoritesScreen')}}
         />
         <View style={tailwind`flex-1`}>
-          <FlatList
-            data={userFollowing}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => {
-              return (
-                <View key={item.id} style={tailwind`p-2`}>
-                  <RecipeTileFollowing recipe={item} />
+          {
+            userFollowing && userFollowing.length > 0
+              ? <FlatList
+                  data={userFollowing}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => {
+                    return (
+                      <View key={item.id} style={tailwind`p-2`}>
+                        <RecipeTileFollowing recipe={item} />
+                      </View>
+                    );
+                  }}
+                  refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                  }
+                />
+              : <View style={tailwind`flex-1 flex justify-center items-center`}>
+                  <Text style={tailwind`font-semibold text-xl`}>No posts found in feed.</Text>
                 </View>
-              );
-            }}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          />
+          }
         </View>
       </View>
     );

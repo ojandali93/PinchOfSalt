@@ -76,20 +76,26 @@ const ListsScreen = () => {
           addClick={goToAddList}
         />
         <View style={tailwind`flex-1`}>
-          <FlatList
-            data={userLists}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => {
-              return (
-                <View key={item.id} style={tailwind`p-2`}>
-                  <CollectionTile list={item}/>
+          {
+            userLists && userLists.length > 0
+              ? <FlatList
+                  data={userLists}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => {
+                    return (
+                      <View key={item.id} style={tailwind`p-2`}>
+                        <CollectionTile list={item}/>
+                      </View>
+                    );
+                  }}
+                  refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                  }
+                />
+              : <View style={tailwind`flex-1 flex justify-center items-center`}>
+                  <Text style={tailwind`font-semibold text-xl`}>No lists found.</Text>
                 </View>
-              );
-            }}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          />
+          }
         </View>
       </View>
     )

@@ -14,8 +14,8 @@ import RedButton from '../../Components/Buttons/Authentication/RedButton';
 import Logo from '../../Assets/icon-red.png';
 
 const ProfileScreen = () => {
-  const { currentProfile, userLists, userFollowing, userFollowers, loginUser, 
-    getUserLists, getUserFollowers, getUserFollowing } = useUser();
+  const { currentProfile, userLists, userFollowingNoReipce, userFollowers, loginUser, 
+    getUserLists, getUserFollowers, getUserFollowingNoRecipe } = useUser();
   const { userRecipes, grabUserRecipes } = useRecipe();
   const navigation = useNavigation();
 
@@ -63,10 +63,10 @@ const ProfileScreen = () => {
 
   const onRefreshFollowing = useCallback(() => {
     setRefreshingFollowing(true);
-    getUserFollowing(currentProfile.user_id).finally(() => {
+    getUserFollowingNoRecipe(currentProfile.user_id).finally(() => {
       setRefreshingFollowing(false);
     });
-  }, [userFollowing]);
+  }, [userFollowingNoReipce]);
 
   if (!currentProfile) {
     // Show the alert screen when the user is not logged in
@@ -164,7 +164,7 @@ const ProfileScreen = () => {
         <Bio bio={currentProfile.bio} />
         <Summary 
           followers={userFollowers.length}
-          following={userFollowing.length} 
+          following={userFollowingNoReipce.length} 
           recipes={userRecipes.length} 
           lists={userLists.length}
           onSelect={setCenterView} 
@@ -251,7 +251,7 @@ const ProfileScreen = () => {
             : centerView === 'Following'
                 ? <View style={tailwind`flex flex-wrap flex-row h-full`}>
                     <FlatList
-                      data={userFollowing}
+                      data={userFollowingNoReipce}
                       style={tailwind`h-full`}
                       key={`following-${centerView}`} // Unique key for following view
                       refreshControl={
@@ -260,15 +260,15 @@ const ProfileScreen = () => {
                       renderItem={(item) => (
                         <TouchableOpacity
                           style={tailwind`w-full flex flex-row items-center mb-3`} 
-                          onPress={() => navigation.navigate('SelectedProfileScreen', {user_id: item.item.user_profile.user_id})}
+                          onPress={() => navigation.navigate('SelectedProfileScreen', {user_id: item.item.Profiles.user_id})}
                         >
                           <Image
-                            source={{ uri: item.item.user_profile.profile_picture }}
+                            source={{ uri: item.item.Profiles.profile_picture }}
                             style={tailwind`w-14 h-14 rounded-full`}
                           />
                           <View style={tailwind`flex-1 ml-3`}>
-                            <Text style={tailwind`text-base font-bold`}>{item.item.user_profile.username}</Text>
-                            <Text style={tailwind`text-base`}>{item.item.user_profile.account_name}</Text>
+                            <Text style={tailwind`text-base font-bold`}>{item.item.Profiles.username}</Text>
+                            <Text style={tailwind`text-base`}>{item.item.Profiles.account_name}</Text>
                           </View>
                         </TouchableOpacity>
                       )}

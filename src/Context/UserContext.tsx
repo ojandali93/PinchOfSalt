@@ -563,22 +563,44 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const getUserFollowingNoRecipe = async (user_id: string) => {
     try {
+      // Step 1: Get all following relationships where follower matches user_id
       const { data: followingData, error: followingError } = await supabase
         .from('Relations')
-        .select(`
-          *
-        `)
+        .select('*')
         .eq('follower', user_id);
   
       if (followingError) {
-        console.error('Error fetching followed profiles:', followingError);
+        console.error('Error fetching members:', followingError);
         return;
       }
-      setUserFollowingNoRecipe(followingData)
+  
+      // Step 2: For each member, fetch the corresponding collection based on collection_id
+      const enhancedData = await Promise.all(
+        followingData.map(async (member) => {
+          const { data: collectionData, error: collectionError } = await supabase
+            .from('Profiles')
+            .select('*')
+            .eq('user_id', member.following)
+            .single(); // Use .single() to fetch a single collection record
+  
+          if (collectionError) {
+            console.error(`Error fetching profile for user_id ${member.user_id}:`, collectionError);
+          }
+  
+          // Step 3: Return member data with associated collection data
+          return {
+            ...member,
+            Profiles: collectionData || null, // Attach collection data or null if not found
+          };
+        })
+      );
+  
+      setUserFollowingNoRecipe(enhancedData);
     } catch (err) {
-      console.error('An error occurred while fetching user lists and recipes:', err);
+      console.error('An error occurred while fetching user profiles:', err);
     }
   };
+  
   
   const getUserFollowers = async (user_id: string) => {
     try {

@@ -135,28 +135,28 @@ const SelectedProfileScreen = () => {
 
   const onRefreshRecipes = useCallback(() => {
     setRefreshingRecipes(true);
-    grabSelectedUserRecipes(currentProfile.user_id).finally(() => {
+    grabSelectedUserRecipes(user_id).finally(() => {
       setRefreshingRecipes(false);
     });
   }, [selectedUserRecipes]);
 
   const onRefreshLists = useCallback(() => {
     setRefreshingLists(true);
-    getSelectedUserLists(currentProfile.user_id).finally(() => {
+    getSelectedUserLists(user_id).finally(() => {
       setRefreshingLists(false);
     });
   }, [selectedUserLists]);
 
   const onRefreshFollowers = useCallback(() => {
     setRefreshingFollowers(true);
-    getSelectedUserFollowers(currentProfile.user_id).finally(() => {
+    getSelectedUserFollowers(user_id).finally(() => {
       setRefreshingFollowers(false);
     });
   }, [selectedUserFollowers]);
 
   const onRefreshFollowing = useCallback(() => {
     setRefreshingFollowing(true);
-    getSelectedUserFollowing(currentProfile.user_id).finally(() => {
+    getSelectedUserFollowing(user_id).finally(() => {
       setRefreshingFollowing(false);
     });
   }, [selectedUserFollowing]);
