@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Modal, Alert } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Modal, Alert, FlatList, RefreshControl } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useUser } from '../../Context/UserContext';
 import tailwind from 'twrnc';
@@ -31,6 +31,11 @@ const SelectedProfileScreen = () => {
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isCateogryVisible, setIsCategoryVisible] = useState<boolean>(false)
+  
+  const [refreshingRecipes, setRefreshingRecipes] = useState<boolean>(false)
+  const [refreshingLists, setRefreshingLists] = useState<boolean>(false)
+  const [refreshingFollowers, setRefreshingFollowers] = useState<boolean>(false)
+  const [refreshingFollowing, setRefreshingFollowing] = useState<boolean>(false)
 
   const limitStringLength = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
@@ -127,6 +132,34 @@ const SelectedProfileScreen = () => {
       setIsModalVisible(false);
     }
   };
+
+  const onRefreshRecipes = useCallback(() => {
+    setRefreshingRecipes(true);
+    grabSelectedUserRecipes(currentProfile.user_id).finally(() => {
+      setRefreshingRecipes(false);
+    });
+  }, [selectedUserRecipes]);
+
+  const onRefreshLists = useCallback(() => {
+    setRefreshingLists(true);
+    getSelectedUserLists(currentProfile.user_id).finally(() => {
+      setRefreshingLists(false);
+    });
+  }, [selectedUserLists]);
+
+  const onRefreshFollowers = useCallback(() => {
+    setRefreshingFollowers(true);
+    getSelectedUserFollowers(currentProfile.user_id).finally(() => {
+      setRefreshingFollowers(false);
+    });
+  }, [selectedUserFollowers]);
+
+  const onRefreshFollowing = useCallback(() => {
+    setRefreshingFollowing(true);
+    getSelectedUserFollowing(currentProfile.user_id).finally(() => {
+      setRefreshingFollowing(false);
+    });
+  }, [selectedUserFollowing]);
   
 
   return (
@@ -143,7 +176,7 @@ const SelectedProfileScreen = () => {
                 more={true} 
                 moreClick={() => setIsModalVisible(true)} // Show modal on "more" click
               />
-              <ScrollView style={tailwind`flex-1 bg-white p-4`}>
+              <View style={tailwind`flex-1 bg-white p-4`}>
                 <NameAndImageProfileRelations 
                   profile={selectedProfile} 
                   following={userFollowingNoReipce}
@@ -159,50 +192,115 @@ const SelectedProfileScreen = () => {
                 <View style={tailwind`h-1 w-full bg-stone-200 my-4`}></View>
         
                 {/* Recipe Grid */}
-                <View style={tailwind`flex flex-wrap flex-row`}>
+                <View style={tailwind`flex-1`}>
                   {
                     centerView === 'Recipes'
-                      ? <>
-                          {
-                            selectedUserRecipes.map((recipe, index) => (
+                      ? <View style={tailwind`flex flex-wrap flex-row h-full`}>
+                          <FlatList
+                            style={tailwind`h-full`}
+                            data={selectedUserRecipes}
+                            key={`recipes-${centerView}`} // Use unique key for recipes view
+                            numColumns={3} // Display 3 items per row
+                            refreshControl={
+                              <RefreshControl refreshing={refreshingRecipes} onRefresh={onRefreshRecipes} />
+                            }
+                            renderItem={({ item }) => (
                               <TouchableOpacity
-                                key={index}
-                                style={tailwind`w-1/3 p-1`} // 3-column grid
-                                onPress={() => navigation.navigate('SingleRecipeScreenProfile', { recipe })}
+                                style={tailwind`w-1/3 p-1`} 
+                                onPress={() => navigation.navigate('SingleRecipeScreenProfile', { item })}
                               >
                                 <Image
-                                  source={{ uri: recipe.main_image }}
+                                  source={{ uri: item.main_image }}
                                   style={tailwind`w-full h-32 rounded-lg`}
                                 />
                               </TouchableOpacity>
-                            ))
-                          }
-                        </>
+                            )}
+                          />
+                        </View>
                       : centerView === 'Lists'
-                          ? <>
-                              {
-                                selectedUserLists.map((list, index) => (
+                          ? <View style={tailwind`flex flex-wrap flex-row h-full`}>
+                              <FlatList
+                                data={selectedUserLists}
+                                style={tailwind`h-full`}
+                                key={`lists-${centerView}`} // Unique key for lists view
+                                refreshControl={
+                                  <RefreshControl refreshing={refreshingLists} onRefresh={onRefreshLists} />
+                                }
+                                renderItem={(item) => (
                                   <TouchableOpacity
-                                    key={index}
-                                    style={tailwind`w-full flex flex-row mb-3`} // 3-column grid
-                                    onPress={() => navigation.navigate('SingleListScreenProfile', { list })}
+                                    style={tailwind`w-full flex flex-row mb-3`} 
+                                    onPress={() => navigation.navigate('SingleListScreenProfile', { item })}
                                   >
                                     <Image
-                                      source={{ uri: list.main_image }}
-                                      style={tailwind`w-32 h-32 rounded-lg`}
+                                      source={{ uri: item.item.collection.main_image }}
+                                      style={tailwind`w-28 h-28 rounded-lg`}
                                     />
                                     <View style={tailwind`flex-1 ml-3`}>
-                                      <Text style={tailwind`text-xl font-bold my-2`}>{list.title}</Text>
-                                      <Text style={tailwind`text-base`}>{limitStringLength(list.description, 90)}</Text>
+                                      <Text style={tailwind`text-xl font-bold my-2`}>{item.item.collection.title}</Text>
+                                      <Text style={tailwind`text-base`}>{limitStringLength(item.item.collection.description, 90)}</Text>
                                     </View>
                                   </TouchableOpacity>
-                                ))
-                              }
-                            </>
-                          : null
-                  }
-                </View>
-              </ScrollView>
+                                )}
+                              />
+                            </View>
+                      : centerView === 'Followers'
+                          ? <View style={tailwind`flex flex-wrap flex-row h-full`}>
+                              <FlatList
+                                data={selectedUserFollowers}
+                                style={tailwind`h-full`}
+                                key={`followers-${centerView}`} // Unique key for followers view
+                                refreshControl={
+                                  <RefreshControl refreshing={refreshingFollowers} onRefresh={onRefreshFollowers} />
+                                }
+                                renderItem={(item) => (
+                                  <TouchableOpacity
+                                    style={tailwind`w-full flex flex-row items-center mb-3`} 
+                                    onPress={() => navigation.navigate('SelectedProfileScreen', {user_id: item.item.Profiles.user_id})}
+                                  >
+                                    <Image
+                                      source={{ uri: item.item.Profiles.profile_picture }}
+                                      style={tailwind`w-14 h-14 rounded-full`}
+                                    />
+                                    <View style={tailwind`flex-1 ml-3`}>
+                                      <Text style={tailwind`text-base font-bold`}>{item.item.Profiles.username}</Text>
+                                      <Text style={tailwind`text-base`}>{item.item.Profiles.account_name}</Text>
+                                    </View>
+                                  </TouchableOpacity>
+                                )}
+                              />
+                            </View>
+                      : centerView === 'Following'
+                          ? <View style={tailwind`flex flex-wrap flex-row h-full`}>
+                              <FlatList
+                                data={selectedUserFollowing}
+                                style={tailwind`h-full`}
+                                key={`following-${centerView}`} // Unique key for following view
+                                refreshControl={
+                                  <RefreshControl refreshing={refreshingFollowing} onRefresh={onRefreshFollowing} />
+                                }
+                                renderItem={(item) => {
+                                  return(
+                                    <TouchableOpacity
+                                      style={tailwind`w-full flex flex-row items-center mb-3`} 
+                                      onPress={() => navigation.navigate('SelectedProfileScreen', {user_id: item.item.Profiles.user_id})}
+                                    >
+                                      <Image
+                                        source={{ uri: item.item.Profiles.profile_picture }}
+                                        style={tailwind`w-14 h-14 rounded-full`}
+                                      />
+                                      <View style={tailwind`flex-1 ml-3`}>
+                                        <Text style={tailwind`text-base font-bold`}>{item.item.Profiles.username}</Text>
+                                        <Text style={tailwind`text-base`}>{item.item.Profiles.account_name}</Text>
+                                      </View>
+                                    </TouchableOpacity>
+                                  )
+                                }}
+                              />
+                            </View>
+                      : null
+                    }
+                  </View>
+              </View>
 
               {/* Modal */}
               <Modal

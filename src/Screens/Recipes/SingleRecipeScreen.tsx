@@ -18,12 +18,14 @@ import supabase from '../../Utils/supabase';
 import { useUser } from '../../Context/UserContext';
 import Video from 'react-native-video';
 import { useApp } from '../../Context/AppContext';
+import { ProfileStackNavigator } from '../../Navigation/ProfileStackNavigation';
 
-type SingleRecipeRouteProp = RouteProp<FeedStackParamList, 'SingleRecipeScreen'>;
+type SingleRecipeRouteProp = RouteProp<ProfileStackNavigator, 'SingleRecipeScreen'>;
 
-const SingleRecipeScreen: React.FC = () => {
+const SingleRecipeScreen = () => {
   const route = useRoute<SingleRecipeRouteProp>();
   const { recipe } = route.params;
+
   const navigation = useNavigation();
   const { currentProfile } = useUser();
   const { createNotification } = useApp()

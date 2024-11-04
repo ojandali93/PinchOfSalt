@@ -106,6 +106,28 @@ const CreateListScreen = () => {
       if (error) {
         console.error('Error inserting recipes into collection:', error);
       } else {
+        addNewMembers(collectionId)
+      }
+    } catch (error) {
+      console.error('Unexpected error while inserting recipes into collection:', error);
+    }
+  }
+
+  const addNewMembers = async (collectionId: number) => {
+    try {
+      const { data, error } = await supabase
+        .from('Members')
+        .insert([
+          {
+            collection_id: collectionId,
+            user_id: currentProfile.user_id,
+            status: 'owner'
+          }
+        ])
+        .select();
+      if (error) {
+        console.error('Error inserting recipes into collection:', error);
+      } else {
         setCreatingCollection(false)
         navigation.navigate('ListsScreen')
       }

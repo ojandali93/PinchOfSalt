@@ -5,7 +5,6 @@ import SignupScreen from '../Screens/Authentication/SignupScreen';
 import ProfileSetupScreen from '../Screens/Authentication/ProfileSetupScreen';
 import ProfileScreen from '../Screens/Profile/ProfileScreen';
 import SingleListScreen from '../Screens/Lists/SingleListScreen';
-import SingleRecipeScreen from '../Screens/Recipes/SingleRecipeScreen';
 import SelectedProfileScreen from '../Screens/Profile/SelectedProfileScreen';
 import SettingsScreen from '../Screens/Profile/SettingsScreen';
 import ContactUsScreen from '../Screens/Profile/ContactUsScreen';
@@ -16,8 +15,9 @@ import EditProfile from '../Screens/Profile/EditProfile';
 import ResetPassword from '../Screens/Profile/ResetPassword';
 import FavoritesScreen from '../Screens/Feed/FavoritesScreen';
 import BlockedUsersScreen from '../Screens/Profile/BlockedUsersScreen';
+import SingleRecipeScreen from '../Screens/Recipes/SingleRecipeScreen';
 
-export type AuthStackParamList = {
+export type ProfileStackNavigator = {
   ProfileScreen: undefined;
   LoginScreen: undefined;
   SignupScreen: undefined;
@@ -28,8 +28,8 @@ export type AuthStackParamList = {
                         email: string,
                         password: string,
                         name: string},
-  SingleRecipeScreen: {list: any},
-  SingleListScreen: {recipe: any},
+  SingleRecipeScreen: {recipe: any},
+  SingleListScreen: {list: any},
   SelectedProfileScreen: {user_id: string}
   SettingsScreen: undefined
   ContactUsScreen: undefined
@@ -42,7 +42,7 @@ export type AuthStackParamList = {
   BlockedUsersScreen: undefined
 };
 
-const StackNav = createStackNavigator<AuthStackParamList>();
+const StackNav = createStackNavigator<ProfileStackNavigator>();
 
 const ProfileStackNavigation = () => {
   return (

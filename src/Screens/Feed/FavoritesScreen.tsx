@@ -39,6 +39,50 @@ const FavoritesScreen = () => {
         </View>
       </View>
   );
+
+  // return (
+  //   <View style={tailwind`flex-1 bg-white`}>
+  //       <StandardHeader
+  //         header="Favorites"
+  //         back={true}
+  //       />
+  //       <View style={tailwind`w-full flex flex-row justify-between pt-3 my-2 px-4`}>
+  //         <TouchableOpacity onPress={() => setViewOptions('Posts')} style={tailwind`w-1/2 items-center pb-3 ${viewOptions === 'Posts' ? 'border-b-4 border-b-red-500' : 'border-b-2 border-b-slate-950' }`}>
+  //           <Text style={tailwind`${viewOptions === 'Posts' ? 'font-bold' : '' }`}>Recipes</Text>
+  //         </TouchableOpacity>
+  //         <TouchableOpacity onPress={() => setViewOptions('Lists')} style={tailwind`w-1/2 items-center pb-3 ${viewOptions === 'Lists' ? 'border-b-4 border-b-red-500' : 'border-b-2 border-b-slate-950' }`}>
+  //           <Text style={tailwind`${viewOptions === 'Lists' ? 'font-bold' : '' }`}>Lists</Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //       <View style={tailwind`flex-1`}>
+  //         {
+  //           viewOptions === 'Posts'
+  //             ? <FlatList
+  //                 data={userFavorites}
+  //                 keyExtractor={(item, index) => index.toString()}
+  //                 renderItem={({ item }) => {
+  //                   return (
+  //                     <View key={item.id} style={tailwind`p-2`}>
+  //                       <RecipeTileNoProfile recipe={item.Recipes} />
+  //                     </View>
+  //                   );
+  //                 }}
+  //               />
+  //             : <FlatList
+  //                 data={userFavorites}
+  //                 keyExtractor={(item, index) => index.toString()}
+  //                 renderItem={({ item }) => {
+  //                   return (
+  //                     <View key={item.id} style={tailwind`p-2`}>
+  //                       <RecipeTileNoProfile recipe={item.Recipes} />
+  //                     </View>
+  //                   );
+  //                 }}
+  //               />
+  //         }
+  //       </View>
+  //     </View>
+  // );
 };
 
 export default FavoritesScreen;

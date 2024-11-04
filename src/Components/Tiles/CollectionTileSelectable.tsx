@@ -42,7 +42,7 @@ const CollectionTileSelectable: React.FC<RecipeProps> = ({list, selectedlists, t
         </View>
         <View>
           <Text style={tailwind`text-2xl font-bold text-white`}>{list.title}</Text>
-          <Text style={tailwind`text-base text-white font-semibold mb-3`}>{limitStringLength(list.description)}</Text>
+          <Text style={tailwind`text-base text-white font-semibold mb-3`}>{list.description}</Text>
         </View>
       </View>
     </TouchableOpacity>
