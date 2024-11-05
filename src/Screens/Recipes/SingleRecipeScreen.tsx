@@ -27,7 +27,7 @@ const SingleRecipeScreen = () => {
   const { recipe } = route.params;
 
   const navigation = useNavigation();
-  const { currentProfile } = useUser();
+  const { currentProfile, generateNotification } = useUser();
   const { createNotification } = useApp()
 
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -139,6 +139,7 @@ const SingleRecipeScreen = () => {
           `${recipe.title} was added to favorites`,
           currentProfile.user_id
         )
+        generateNotification(recipe.user_profile.fcm_token, 'New Favorite', `${recipe.title} was added to favorites`)
         getFavorites(); // Refresh likes after adding
       }
     } catch (error) {
@@ -337,7 +338,8 @@ const SingleRecipeScreen = () => {
             null,
             `${currentProfile.username} added a comment on ${recipe.title} - ${comment}`,
             currentProfile.user_id
-          )
+          ) 
+          generateNotification(recipe.user_profile.fcm_token, 'New Comment', `${currentProfile.username} added a comment on ${recipe.title}`)
           setComment('')
           getComments();
         }
@@ -348,7 +350,7 @@ const SingleRecipeScreen = () => {
   };
 
   return (
-    <View style={tailwind`flex-1 bg-white`}>
+    <KeyboardAvoidingView style={tailwind`flex-1 bg-white`} behavior="padding" keyboardVerticalOffset={90}>
       <StandardHeader
         header={recipe.title}
         back={true}
@@ -469,7 +471,7 @@ const SingleRecipeScreen = () => {
           </TouchableOpacity>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

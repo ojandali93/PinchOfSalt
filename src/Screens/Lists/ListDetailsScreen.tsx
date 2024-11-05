@@ -23,7 +23,7 @@ const ListDetailsScreen = () => {
 
   const {listMembers, getListMembers} = useList()
   const { createNotification } = useApp()
-  const { currentProfile } = useUser()
+  const { currentProfile, generateNotification } = useUser()
 
   const [addingMembers, setAddingMembers] = useState<boolean>(false)
   const [selectedMembers, setSelectedMembers] = useState<any[]>([])
@@ -35,12 +35,12 @@ const ListDetailsScreen = () => {
     setAddingMembers(!addingMembers)
   }
 
-  const toggleSelectingMember = (user_id: string) => {
-    if(selectedMembers.includes(user_id)){
-      const updatedMembers = selectedMembers.filter((item) => item != user_id)
+  const toggleSelectingMember = (user: any) => {
+    if(selectedMembers.includes(user)){
+      const updatedMembers = selectedMembers.filter((item) => item != user)
       setSelectedMembers(updatedMembers)
     } else {
-      setSelectedMembers([...selectedMembers, user_id])
+      setSelectedMembers([...selectedMembers, user])
     }
   }
 
@@ -70,32 +70,33 @@ const ListDetailsScreen = () => {
     setAddingMembersToList(true)
     try {
       // Iterate through each selected user_id
-      selectedMembers.map(async (user_id) => {
+      selectedMembers.map(async (user) => {
         const { data, error } = await supabase
           .from('Members') // Assuming your table is named 'Members'
           .insert([
             {
               collection_id: list.id, 
-              member_id: user_id, 
+              member_id: user.user_id, 
               status: 'pending', 
             }
           ])
           .select();
   
         if (error) {
-          console.error(`Error adding user ${user_id} to list ${list.id}:`, error);
+          console.error(`Error adding user ${user.user_id} to list ${list.id}:`, error);
           return null; // Return null in case of error
         }
         createNotification(
-          user_id,
+          user.user_id,
           null,
           null,
           null,
           null,
           list.id,
-          `${currentProfile.user_id} sent a request to join ${list.title}`,
+          `${currentProfile.username} sent a request to join ${list.title}`,
           currentProfile.user_id
         )
+        generateNotification(user.fcm_token, 'Collection Request', `${currentProfile.username} sent a request to join ${list.title}`)
       });
       getListMembers(list.id)
       setAddingMembersToList(false)

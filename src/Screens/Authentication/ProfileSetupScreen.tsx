@@ -76,9 +76,9 @@ const ProfileSetupScreen = () => {
   
     const downloadURL = await getDownloadURL(snapshot.ref);
     if(downloadURL){
-      createUserAccount(username, email, password, firstName, lastName, downloadURL, bio, location, experience, navigation)
+      createUserAccount(username, email, password, firstName, lastName, downloadURL, bio, experience, navigation)
     } else {
-      createUserAccount(username, email, password, firstName, lastName, '', bio, location, experience, navigation)
+      createUserAccount(username, email, password, firstName, lastName, '', bio, experience, navigation)
     }
   }
 
@@ -138,22 +138,6 @@ const ProfileSetupScreen = () => {
               secure={false}
               value={bio}
               onChange={setBio}
-              capitalization={false}
-              loading={false}
-            />
-          </View>
-
-          <View style={tailwind`mt-4`}>
-            <AuthInput
-              icon='MapPin'
-              valid={false}
-              validation={false}
-              placeholder='Location (city, state)...'
-              placeholderColor='grey'
-              multi={false}
-              secure={false}
-              value={location}
-              onChange={setLocation}
               capitalization={false}
               loading={false}
             />

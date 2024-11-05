@@ -11,7 +11,7 @@ interface NameAndImageProps {
 }
 
 const NameAndImageProfileRelations: React.FC<NameAndImageProps> = ({ profile, following }) => {
-  const { currentProfile, getUserFollowingNoRecipe, userFollowingNoReipce } = useUser();
+  const { currentProfile, getUserFollowingNoRecipe, userFollowingNoReipce, generateNotification } = useUser();
   const { createNotification } = useApp()
 
   const followRecord = userFollowingNoReipce.find(follow => follow.following === profile.user_id);
@@ -55,8 +55,12 @@ const NameAndImageProfileRelations: React.FC<NameAndImageProps> = ({ profile, fo
           `${currentProfile.username} is following you.`,
           currentProfile.user_id
         )
-      if (error) console.error('Error creating follow:', error);
-      else getUserFollowingNoRecipe(currentProfile.user_id);
+      if (error) {
+        console.error('Error creating follow:', error)
+      } else {
+        generateNotification(profile.fcm_token, 'New Follow', `${currentProfile.username} is following you.`)
+        getUserFollowingNoRecipe(currentProfile.user_id)
+      };
     } catch (error) {
       console.error('Error:', error);
     }
@@ -83,8 +87,12 @@ const NameAndImageProfileRelations: React.FC<NameAndImageProps> = ({ profile, fo
           `${currentProfile.username} requested to follow you.`,
           currentProfile.user_id
         )
-      if (error) console.error('Error creating pending follow:', error);
-      else getUserFollowingNoRecipe(currentProfile.user_id);
+      if (error) {
+        console.error('Error creating follow:', error)
+      } else {
+        generateNotification(profile.fcm_token, 'New Friend Request', `${currentProfile.username} sent you a friend request.`)
+        getUserFollowingNoRecipe(currentProfile.user_id)
+      };
     } catch (error) {
       console.error('Error:', error);
     }

@@ -17,7 +17,8 @@ interface RecipeProps {
 const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
   const navigation = useNavigation()
 
-  const { userFavorites, addToFavorite, removeFromFavorite, currentProfile } = useUser()
+  const { userFavorites, addToFavorite, removeFromFavorite, 
+    currentProfile, generateNotification } = useUser()
   const { createNotification } = useApp()
 
   const [showOptions, setShowOptions] = useState<boolean>(false)
@@ -193,6 +194,7 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
         `${currentProfile.username} liked your recipe - ${recipe.title}`,
         currentProfile.user_id
       )
+      generateNotification(recipe.user_profile.fcm_token, 'New Like', `${currentProfile.username} liked your recipe - ${recipe.title}`)
       grabRecipeLikes()
     } catch (error) {
       console.error('Error creating like:', error)

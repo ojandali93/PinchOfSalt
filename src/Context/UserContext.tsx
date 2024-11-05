@@ -3,7 +3,7 @@ import supabase from '../Utils/supabase';
 import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
 import { Alert, Platform } from 'react-native';
 import { useRecipe } from './RecipeContext';
-import { storage } from '../Utils/firebaseConfig';
+import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -31,7 +31,6 @@ interface UserContextType {
     lastName: string, 
     profilePic: string, 
     bio: string, 
-    location: string, 
     experience: string,
     navigation: any
   ) => void,
@@ -67,6 +66,7 @@ interface UserContextType {
   getUserFriendsPending: (user_id: string) => void
   userListRequests: any[]
   getUserListPending: (user_id: string) => void
+  generateNotification: (fcmToken: any, title: string, body: string, imageUrl?: string) => void
 }
 
 interface SingleImageProp {
@@ -138,7 +138,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     lastName: string, 
     profilePic: string, 
     bio: string, 
-    location: string, 
     experience: string,
     navigation: any
   ) => {
@@ -157,7 +156,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error('Error signing up:', signUpError.message);
         return;
       }
-      createUsersProfile(username, email, firstName, lastName, profilePic, bio, location, experience, navigation, data.user)
+      createUsersProfile(username, email, firstName, lastName, profilePic, bio, experience, navigation, data.user)
     } catch (error) {
       console.error('there was an error creating the users account: ', error)
     }
@@ -170,7 +169,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     lastName: string, 
     profilePic: string, 
     bio: string, 
-    location: string, 
     experience: string,
     navigation: any,
     user: any
@@ -184,7 +182,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             username: username.toLowerCase(),
             email: email,
             bio: bio,
-            location: location,
+            location: null,
             first_name: firstName,
             last_name: lastName,
             full_name: `${firstName} ${lastName}`,
@@ -245,7 +243,25 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   // USER LOGIN FUNCTIONS
   // - takes in username, password, and navigation
 
-  const loginUser = async (username: string, password: string, navigation: any, screen: string) => {
+  const getFCMToken = async (user_id: string) => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        // Here, you should send the token to your server to associate it with the user
+        console.log('fcm token: ', fcmToken)
+        updateUserProfileWithFCMToken(fcmToken, user_id)
+      } else {
+        console.log('Failed to get FCM token');
+      }
+    }
+  }
+
+  const loginUser = async (username: string, password: string, navigation: any, screen: string, fcmToken: any) => {
     setLoggingIn(true)
     try {
       const { data, error } = await supabase
@@ -258,7 +274,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         if(data.length === 0){
           Alert.alert('Invaid Username', 'Userame does not match any records')
         } else {
-          loginToAccount(data[0]['email'], username, password, navigation, screen)
+          getFCMToken(data[0].user_id)
+          loginToAccount(data[0]['email'], username, password, navigation, screen, fcmToken)
         }
       }
     } catch (err) {
@@ -266,7 +283,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  const loginToAccount = async (email: string, username: string, password: string, navigation: any, screen: string) => {
+  const loginToAccount = async (email: string, username: string, password: string, navigation: any, screen: string, fcmToken: any) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
@@ -282,6 +299,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           Alert.alert('Login Failed', 'Username or password does not match our records.');
         }
       } else {
+        updateUserProfileWithFCMToken(fcmToken, data.user.user_id)
         getUserProfileLogin(username, navigation, data.user, screen)
       }
     } catch (err) {
@@ -291,23 +309,23 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  const logoutCurrentUser = async (navigation: any) => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Error logging out:', error.message);
-        return false;
-      }
-      setCurrentProfile(null)
-      AsyncStorage.removeItem('currentUser');
-      AsyncStorage.removeItem('currentProfile');
-      navigation.navigate('FeedScreen')
-      return true;
-    } catch (err) {
-      console.error('Unexpected error logging out:', err);
-      return false;
+  const updateUserProfileWithFCMToken = async (fcmToken: any, user_id: string) => {
+    try{
+      const {data, error} = await supabase
+        .from('Profiles')
+        .update({
+          fcm_token: fcmToken
+        })
+        .eq('user_id: ', user_id)
+        .select()
+      if(error){
+        console.log('error updating single record with fcm token: ', error)
+      } 
+      console.log('new user profiel: ', data)
+    }catch(error){
+      console.log('error updateing profile with token: ', error)
     }
-  };
+  }
 
   const getUserProfileLogin = async (username: string, navigation: any, user: any, screen: string) => {
     try {
@@ -330,6 +348,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       getUserActivity(data[0].user_id)
       getUserFriendsPending(data[0].user_id)
       getUserListPending(data[0].user_id)
+      getFCMToken(data[0].user_id)
       setLoggingIn(false)
       AsyncStorage.setItem('currentUser', JSON.stringify(user));
       AsyncStorage.setItem('currentProfile', JSON.stringify(data[0]));~
@@ -338,6 +357,49 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       console.error('An error occurred while checking the username:', err);
     }
   }
+
+  const logoutCurrentUser = async (navigation: any) => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error logging out:', error.message);
+        return false;
+      }
+      setCurrentProfile(null)
+      AsyncStorage.removeItem('currentUser');
+      AsyncStorage.removeItem('currentProfile');
+      navigation.navigate('FeedScreen')
+      return true;
+    } catch (err) {
+      console.error('Unexpected error logging out:', err);
+      return false;
+    }
+  };
+
+  const generateNotification = async (fcmToken: any, title: string, body: string, imageUrl?: string) => {
+    try {
+      const message = {
+        fcmToken,
+        title,
+        body,
+        imageUrl,
+      };
+      const response = await fetch('https://pinchofsaltserver.onrender.com/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+      getUserActivity(currentProfile.user_id)
+      getUserFriendsPending(currentProfile.user_id)
+      getUserListPending(currentProfile.user_id)
+      console.log('Notification sent successfully:', response);
+    } catch (error) {
+      console.error('There was an error generating a notification:', error);
+    }
+  };
+  
 
   const getUserFriendsPending = async (user_id: string) => {
     try {
@@ -824,7 +886,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         userFriendRequests,
         getUserFriendsPending,
         getUserListPending,
-        userListRequests
+        userListRequests,
+        generateNotification
       }}
     >
       {children}

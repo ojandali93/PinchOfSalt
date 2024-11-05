@@ -52,8 +52,8 @@ const SearchInput: React.FC<SearchHeaderProps> = ({toggleAddingMembers, confirmC
                           <Text style={tailwind`text-white text-base font-bold`}>{item.username}</Text>
                           <Text style={tailwind`text-white text-sm`}>{item.account_name}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => {toggleSelectedItem(item.user_id)}} style={tailwind`${selectedItems.includes(item.user_id) ? 'bg-stone-400 w-20' : 'bg-red-500 w-14'} py-0.5 rounded-2 flex justify-center items-center `}>
-                          <Text style={tailwind`text-white text-base font-bold`}>{selectedItems.includes(item.user_id) ? 'Remove' : 'Add'}</Text>
+                        <TouchableOpacity onPress={() => {toggleSelectedItem(item)}} style={tailwind`${selectedItems.includes(item) ? 'bg-stone-400 w-20' : 'bg-red-500 w-14'} py-0.5 rounded-2 flex justify-center items-center `}>
+                          <Text style={tailwind`text-white text-base font-bold`}>{selectedItems.includes(item) ? 'Remove' : 'Add'}</Text>
                         </TouchableOpacity>
                       </View>
                     )

@@ -10,7 +10,8 @@ import { RefreshControl } from 'react-native-gesture-handler';
 
 const NotificationScreen = () => {
   const navigation = useNavigation();
-  const { currentProfile, userActivity, getUserActivity, userFriendRequests, getUserFriendsPending, userListRequests, getUserListPending } = useUser();
+  const { currentProfile, userActivity, getUserActivity, userFriendRequests, 
+    getUserFriendsPending, userListRequests, getUserListPending, generateNotification } = useUser();
 
   const [viewOptions, setViewOptions] = useState<string>('Activity')
   const [refreshing, setRefreshing] = useState(false);
@@ -34,7 +35,7 @@ const NotificationScreen = () => {
     }
   }
 
-  const updateFriendRequest = async (friend_id: number) => {
+  const updateFriendRequest = async (friend_id: number, fcm_token: any) => {
     try {
       const {error} = await supabase
         .from('Relations')
@@ -47,6 +48,7 @@ const NotificationScreen = () => {
       if(error){
         console.log('There is an error while deleting this request: ', error)
       }
+      generateNotification(fcm_token, 'Accepted Friend Request', `${currentProfile.username} accepted your friend request.`)
       getUserFriendsPending(currentProfile.user_id)
     } catch(error) {
       console.log('There was an error deleting a request: ', error)
@@ -69,7 +71,7 @@ const NotificationScreen = () => {
     }
   }
 
-  const updateListRequest = async (member_id: number) => {
+  const updateListRequest = async (member_id: number, fcm_token: any) => {
     try {
       const {error} = await supabase
         .from('Members')
@@ -81,6 +83,7 @@ const NotificationScreen = () => {
       if(error){
         console.log('There is an error while deleting this list request: ', error)
       }
+      generateNotification(fcm_token, 'Accepted List Request', `${currentProfile.username} accepted your list request.`)
       getUserListPending(currentProfile.user_id)
     } catch(error) {
       console.log('There was an error deleting a list request: ', error)
@@ -165,7 +168,7 @@ const NotificationScreen = () => {
                               <Text>{item.item.followerProfile.username} wants to follow you</Text>
                             </View>
                             <View style={tailwind`flex flex-row items-center`}>
-                              <TouchableOpacity onPress={() => {updateFriendRequest(item.item.id)}}>
+                              <TouchableOpacity onPress={() => {updateFriendRequest(item.item.id, item.item.followerProfile.fcm_token)}}>
                                 <Check height={24} width={24} strokeWidth={2} color={'green'}/>
                               </TouchableOpacity>
                               <TouchableOpacity onPress={() => {deleteFriendRequest(item.item.id)}}>
@@ -199,7 +202,7 @@ const NotificationScreen = () => {
                               <Text>{item.item.profile.username} wants to add you to {item.item.collection.title}</Text>
                             </View>
                             <View style={tailwind`flex flex-row items-center`}>
-                              <TouchableOpacity onPress={() => {updateListRequest(item.item.id)}}>
+                              <TouchableOpacity onPress={() => {updateListRequest(item.item.id, item.item.profile.fcm_token)}}>
                                 <Check height={24} width={24} strokeWidth={2} color={'green'}/>
                               </TouchableOpacity>
                               <TouchableOpacity onPress={() => {deleteListRequest(item.item.id)}}>
